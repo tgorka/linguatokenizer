@@ -1,0 +1,104 @@
+# Pre-commit checks. Compatible with both `pre-commit` and `prek`
+# (https://github.com/j178/prek), a faster Rust drop-in replacement.
+#
+# Install hooks once:    uvx prek install --install-hooks
+# Run against all files: uvx prek run --all-files
+#
+# Python tools (ruff / ty / pytest) are pinned in pyproject.toml's dev group
+# and invoked via `uv run` so versions stay in one place.
+
+default_install_hook_types: [pre-commit, commit-msg]
+default_stages: [pre-commit]
+
+# Vendored / generated trees we do not own — BMad tooling, the bmad-loop
+# orchestrator hook + state, installed skills, and BMad output artifacts.
+exclude: |
+  (?x)^(
+    _bmad/|
+    _bmad-output/|
+    \.bmad-loop/|
+    \.claude/|
+    skills/
+  )
+
+repos:
+  # ---------------------------------------------------------------------------
+  # Generic hygiene + JSON / YAML / TOML syntax
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-toml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-added-large-files
+        # Research papers / slide decks under mocks/*/doc/ are intentionally
+        # checked in; 10 MB keeps the door open for them without inviting
+        # arbitrary binary blobs.
+        args: [--maxkb=10240]
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: detect-private-key
+
+  # ---------------------------------------------------------------------------
+  # YAML lint (deeper than pre-commit-hooks check-yaml)
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        args: [--strict]
+
+  # ---------------------------------------------------------------------------
+  # TOML format + lint (taplo, Rust)
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/ComPWA/taplo-pre-commit
+    rev: v0.9.3
+    hooks:
+      - id: taplo-format
+      - id: taplo-lint
+        # Skip the online JSON-schema catalog — its response shape changed
+        # upstream and breaks taplo 0.9.3's deserializer.
+        args: [--no-schema]
+
+  # ---------------------------------------------------------------------------
+  # Python: format, lint, type-check, tests — all uv-managed
+  # ---------------------------------------------------------------------------
+  - repo: local
+    hooks:
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
+
+      - id: ruff
+        name: ruff check
+        entry: uv run ruff check --fix
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
+
+      - id: ty
+        name: ty (type check)
+        entry: uv run ty check
+        language: system
+        types: [python]
+        pass_filenames: false
+        require_serial: true
+
+      - id: pytest
+        name: pytest
+        # Tolerate pytest exit 5 (no tests collected) while the workspace
+        # is still being scaffolded.
+        entry: bash -c 'uv run pytest -q; s=$?; [ "$s" -eq 5 ] && exit 0 || exit "$s"'
+        language: system
+        pass_filenames: false
+        always_run: true
+        require_serial: true

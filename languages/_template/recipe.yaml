@@ -1,0 +1,58 @@
+# Language recipe template.
+#
+# A "recipe" is the committed source of truth for one language's tokenizer(s):
+# which corpora to train/evaluate on, the training algorithm + hyperparameters,
+# and the fertility/quality targets. The trained tokenizer binary itself is a
+# build artifact (stored on the Nextcloud data store), reproducible from this
+# recipe. Copy this file to languages/<iso-639-1>/recipe.yaml to add a language.
+
+language:
+  code: xx # ISO 639-1 (e.g. pl, de, fr, cs, ru, uk, lt, es, hi, he, ar, th, pt)
+  name: Example Language
+  scripts: [Latn] # ISO 15924 scripts this language uses
+
+# Corpora used to TRAIN candidate tokenizers. Each entry is resolved by the
+# corpora loader; `weight` controls the sampling mix (technical vs general).
+train_corpora:
+  - source: hf # hf | url | local
+    id: oscar-corpus/OSCAR-2301
+    config: xx
+    split: train
+    weight: 1.0
+    domain: general # general | technical | web | wiki | legal | conversational
+
+# Corpora held out for BENCHMARKING fertility + quality (never trained on).
+eval_corpora:
+  - source: hf
+    id: wikimedia/wikipedia
+    config: 20231101.xx
+    split: train # wikimedia/wikipedia only exposes a `train` split
+    weight: 1.0
+    domain: general
+
+# Candidate tokenizers to train and compare. Multiple entries let us compare
+# algorithms / vocab sizes and optionally route (e.g. technical vs general).
+candidates:
+  - name: xx-bpe-32k
+    algorithm: bpe # bpe | unigram | superbpe
+    vocab_size: 32000
+    byte_fallback: true
+    normalization: NFC
+  - name: xx-unigram-32k
+    algorithm: unigram
+    vocab_size: 32000
+    byte_fallback: true
+    normalization: NFC
+
+# Targets the benchmark checks the winning candidate against.
+targets:
+  # Fertility (tokens/word) must be <= the English baseline on eval_corpora.
+  max_fertility_vs_english: 1.0
+  # Do not regress downstream quality when transplanted (see adapters/).
+  max_quality_drop_pct: 1.0
+
+# Baseline tokenizers to compare against (the ones we want to beat).
+baselines:
+  - gpt2
+  - meta-llama/Llama-3.1-8B
+  - mistralai/Mistral-7B-v0.1

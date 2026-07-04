@@ -1,0 +1,41 @@
+[project]
+name = "tokenizer-core"
+version = "0.0.0"
+description = "Core library: corpus handling, tokenizer training, fertility/quality benchmarking, and model-tokenizer adapters."
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2",
+    "pyyaml>=6",
+]
+
+# Heavy or optional pieces are extras so the base install stays light and
+# importable without native deps. Runtime code that needs these imports them
+# lazily and guards the import.
+[project.optional-dependencies]
+# Tokenizer training + inference (HF tokenizers / sentencepiece / tiktoken).
+train = [
+    "tokenizers>=0.20",
+    "sentencepiece>=0.2",
+    "tiktoken>=0.8",
+]
+# Corpus acquisition from the Hugging Face Hub.
+corpora = [
+    "datasets>=3",
+    "huggingface-hub>=0.25",
+]
+# Embedding transplantation + gpt2 proof-of-concept retraining.
+adapters = [
+    "numpy>=1.26",
+    "transformers>=4.44",
+    "tokenizers>=0.20",
+]
+
+[project.scripts]
+tokenizer = "tokenizer_core.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tokenizer_core"]

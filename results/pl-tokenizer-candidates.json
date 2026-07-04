@@ -1,0 +1,16 @@
+{
+  "tokenizer": "pl-bpe-32k",
+  "vocab_size": 32000,
+  "train_corpus": "fineweb2+wiki ~75MB",
+  "eval": "FLORES-200 devtest pol_Latn (1012 sents)",
+  "pl_fertility": 1.5614,
+  "chars_per_token": 4.575,
+  "baselines_pl_fertility": {
+    "gpt2": 3.713,
+    "mistral-7b-v0.1": 2.971,
+    "llama-3.1-8b": 2.683,
+    "qwen2.5-7b": 2.497,
+    "deepseek-v3": 2.332,
+    "bielik-v3-apt4-paper": 1.62
+  }
+}

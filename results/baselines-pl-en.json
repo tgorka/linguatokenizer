@@ -1,0 +1,165 @@
+{
+  "language_code": "pl",
+  "outcomes": [
+    {
+      "name": "gpt2",
+      "report": {
+        "target": {
+          "n_docs": 1012,
+          "n_words": 19525,
+          "n_chars": 139483,
+          "n_tokens": 72504,
+          "fertility": 3.713393085787452,
+          "chars_per_token": 1.9237973077347457,
+          "bytes_per_token": 2.044728566699768
+        },
+        "english": {
+          "n_docs": 1012,
+          "n_words": 21982,
+          "n_chars": 131966,
+          "n_tokens": 27044,
+          "fertility": 1.2302793194431807,
+          "chars_per_token": 4.879677562490756,
+          "bytes_per_token": 4.884484543706552
+        },
+        "fertility_vs_english": 3.018333338699149
+      },
+      "skip_reason": null
+    },
+    {
+      "name": "meta-llama/Llama-3.1-8B",
+      "report": {
+        "target": {
+          "n_docs": 1012,
+          "n_words": 19525,
+          "n_chars": 139483,
+          "n_tokens": 52383,
+          "fertility": 2.682868117797695,
+          "chars_per_token": 2.6627531832846536,
+          "bytes_per_token": 2.8301357310577857
+        },
+        "english": {
+          "n_docs": 1012,
+          "n_words": 21982,
+          "n_chars": 131966,
+          "n_tokens": 28183,
+          "fertility": 1.282094440906196,
+          "chars_per_token": 4.682468154561261,
+          "bytes_per_token": 4.6870808643508495
+        },
+        "fertility_vs_english": 2.0925666879121785
+      },
+      "skip_reason": null
+    },
+    {
+      "name": "mistralai/Mistral-7B-v0.1",
+      "report": {
+        "target": {
+          "n_docs": 1012,
+          "n_words": 19525,
+          "n_chars": 139483,
+          "n_tokens": 58003,
+          "fertility": 2.9707042253521125,
+          "chars_per_token": 2.4047549264693204,
+          "bytes_per_token": 2.555919521404065
+        },
+        "english": {
+          "n_docs": 1012,
+          "n_words": 21982,
+          "n_chars": 131966,
+          "n_tokens": 31009,
+          "fertility": 1.4106541715949412,
+          "chars_per_token": 4.255732206778677,
+          "bytes_per_token": 4.259924538037344
+        },
+        "fertility_vs_english": 2.1059053913925037
+      },
+      "skip_reason": null
+    },
+    {
+      "name": "Qwen/Qwen2.5-7B",
+      "report": {
+        "target": {
+          "n_docs": 1012,
+          "n_words": 19525,
+          "n_chars": 139483,
+          "n_tokens": 48746,
+          "fertility": 2.496594110115237,
+          "chars_per_token": 2.8614245271406884,
+          "bytes_per_token": 3.0412956960571123
+        },
+        "english": {
+          "n_docs": 1012,
+          "n_words": 21982,
+          "n_chars": 131966,
+          "n_tokens": 27621,
+          "fertility": 1.256528068419616,
+          "chars_per_token": 4.777741573440498,
+          "bytes_per_token": 4.782448137286847
+        },
+        "fertility_vs_english": 1.9868987990497498
+      },
+      "skip_reason": null
+    },
+    {
+      "name": "deepseek-ai/DeepSeek-V3",
+      "report": {
+        "target": {
+          "n_docs": 1012,
+          "n_words": 19525,
+          "n_chars": 139483,
+          "n_tokens": 45542,
+          "fertility": 2.332496798975672,
+          "chars_per_token": 3.0627333011286284,
+          "bytes_per_token": 3.2552588819112027
+        },
+        "english": {
+          "n_docs": 1012,
+          "n_words": 21982,
+          "n_chars": 131966,
+          "n_tokens": 27041,
+          "fertility": 1.2301428441452098,
+          "chars_per_token": 4.880218926814837,
+          "bytes_per_token": 4.885026441329832
+        },
+        "fertility_vs_english": 1.8961186581518148
+      },
+      "skip_reason": null
+    },
+    {
+      "name": "speakleash/Bielik-11B-v2.3-Instruct",
+      "report": {
+        "target": {
+          "n_docs": 1012,
+          "n_words": 19525,
+          "n_chars": 139483,
+          "n_tokens": 58003,
+          "fertility": 2.9707042253521125,
+          "chars_per_token": 2.4047549264693204,
+          "bytes_per_token": 2.555919521404065
+        },
+        "english": {
+          "n_docs": 1012,
+          "n_words": 21982,
+          "n_chars": 131966,
+          "n_tokens": 31009,
+          "fertility": 1.4106541715949412,
+          "chars_per_token": 4.255732206778677,
+          "bytes_per_token": 4.259924538037344
+        },
+        "fertility_vs_english": 2.1059053913925037
+      },
+      "skip_reason": null
+    },
+    {
+      "name": "google/gemma-2-9b",
+      "report": null,
+      "skip_reason": "failed to load baseline 'google/gemma-2-9b': You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/google/gemma-2-9b.\n403 Client Error. (Request ID: Root=1-6a48bb53-33c253b37f5431951289d193;3778e7e7-bd56-48ee-aada-79602a84d2ff)\n\nCannot access gated repo for url https://huggingface.co/google/gemma-2-9b/resolve/main/config.json.\nAccess to model google/gemma-2-9b is restricted and you are not in the authorized list. Visit https://huggingface.co/google/gemma-2-9b to ask for access."
+    },
+    {
+      "name": "speakleash/Bielik-11B-v3.0-Instruct",
+      "report": null,
+      "skip_reason": "failed to load baseline 'speakleash/Bielik-11B-v3.0-Instruct': You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/speakleash/Bielik-11B-v3.0-Instruct.\n403 Client Error. (Request ID: Root=1-6a48bb54-77e218243d975454619f2f2a;e21a7941-ccbe-4e4d-b98b-c3cac7f37e22)\n\nCannot access gated repo for url https://huggingface.co/speakleash/Bielik-11B-v3.0-Instruct/resolve/main/config.json.\nAccess to model speakleash/Bielik-11B-v3.0-Instruct is restricted and you are not in the authorized list. Visit https://huggingface.co/speakleash/Bielik-11B-v3.0-Instruct to ask for access."
+    }
+  ]
+}

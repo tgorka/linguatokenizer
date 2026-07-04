@@ -1,0 +1,131 @@
+# =============================================================================
+# Python
+# =============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+.eggs/
+build/
+dist/
+.installed.cfg
+.pytype/
+
+# Virtualenvs (uv creates .venv at the root and per-member)
+.venv/
+venv/
+env/
+.python-version
+
+# Tool caches
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.pyright/
+.tox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.cache/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_meta
+
+# =============================================================================
+# ML / tokenizer artifacts
+# =============================================================================
+wandb/
+mlruns/
+lightning_logs/
+tb_logs/
+tensorboard/
+outputs/
+checkpoints/
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+*.bin
+*.gguf
+*.onnx
+
+# Trained tokenizer binaries and vocab dumps are large build artifacts — the
+# recipe (languages/<lang>/*.yaml) is the committed source of truth, the
+# trained tokenizer lives on the Nextcloud data store. Small golden fixtures
+# used by tests are force-added explicitly with `git add -f`.
+*.model
+*.vocab
+spm.model
+
+# Hugging Face / dataset caches
+.huggingface/
+hf_cache/
+
+# Local datasets (real corpora live on the Nextcloud data store; commit small
+# fixtures explicitly with `git add -f`)
+data/
+!data/.gitkeep
+datasets/
+!datasets/.gitkeep
+
+# =============================================================================
+# Environment & Secrets
+# =============================================================================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# =============================================================================
+# IDE / Editor
+# =============================================================================
+.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# =============================================================================
+# OS
+# =============================================================================
+.DS_Store
+._*
+Thumbs.db
+
+# =============================================================================
+# BMad / bmad-loop
+# =============================================================================
+# Personal BMad config (user_name, communication_language, etc.).
+_bmad/config.user.yaml
+_bmad/config.user.toml
+_bmad/**/config.user.toml
+# bmad-loop orchestrator run state and caches.
+.bmad-loop/runs/
+.bmad-loop/cache/
+# BMM dev/review skills symlinked from the machine-local plugin cache by
+# scripts/setup-bmad-skills.sh — machine-specific, not portable, not committed.
+.claude/skills/bmad-dev-auto
+.claude/skills/bmad-review-adversarial-general
+.claude/skills/bmad-review-edge-case-hunter
+
+# =============================================================================
+# Worktrees
+# =============================================================================
+.worktrees/
+
+# =============================================================================
+# Misc
+# =============================================================================
+*.log
+tmp/
+.scratch/
+
+# NOTE: results/ benchmark artifacts (fertility reports, comparison tables) are
+# intentionally TRACKED in git for provenance — not ignored. (*.log is still
+# covered above.)

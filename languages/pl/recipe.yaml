@@ -1,0 +1,99 @@
+# Polish tokenizer recipe.
+#
+# NOTE: this is the initial draft used to bootstrap the repo. Corpora choices,
+# candidate set, and targets are refined by the BMAD planning artifacts
+# (_bmad-output/planning-artifacts) and the benchmark iterations. The trained
+# tokenizer binaries are build artifacts on the Nextcloud data store; this file
+# is the reproducible source of truth.
+
+language:
+  code: pl
+  name: Polish
+  scripts: [Latn]
+
+# Polish is a fusional, highly inflected Slavic language: rich case/number/
+# gender morphology and productive diacritics (ą ć ę ł ń ó ś ź ż). Universal
+# tokenizers over-segment it (~1.5-3.2 tokens/word vs ~1.3 for English), which
+# is the root of the "Polish costs ~2x the tokens" penalty this repo targets.
+
+# Training text is pre-staged into the data plane by scripts/stage_pl_corpus.py
+# (bounded, reproducible, ungated) and referenced here as local files, so
+# training is fast/offline and the large corpora stay off git. OSCAR is gated
+# and mc4/cc100 use dead dataset scripts, so we use FineWeb-2 + Wikipedia.
+train_corpora:
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/pl/train/fineweb2.txt
+    config: pol_Latn # HuggingFaceFW/fineweb-2, high-quality filtered web
+    split: train
+    weight: 0.7
+    domain: web
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/pl/train/wiki.txt
+    config: 20231101.pl # wikimedia/wikipedia, clean encyclopedic text
+    split: train
+    weight: 0.3
+    domain: wiki
+
+# Held out for benchmarking fertility + quality. FLORES-200 gives sentence-
+# aligned PL/EN pairs, so fertility is measured on IDENTICAL content — the
+# fair way to state "Polish costs N tokens for the same sentence as English".
+# The HF `facebook/flores` dataset is gated; we use the public, ungated
+# FLORES-200 tarball (CC-BY-SA-4.0) fetched by `scripts/fetch-flores.sh` into
+# the data plane, referenced here as local aligned files (`config` names the
+# FLORES side: `pol_Latn` = target, `eng_Latn` = English twin).
+eval_corpora:
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/flores200/flores200_dataset/devtest/pol_Latn.devtest
+    config: pol_Latn
+    split: devtest
+    weight: 1.0
+    domain: general
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/flores200/flores200_dataset/devtest/eng_Latn.devtest
+    config: eng_Latn
+    split: devtest
+    weight: 1.0
+    domain: general
+  - source: hf
+    id: wikimedia/wikipedia
+    config: 20231101.pl
+    split: train # wikimedia/wikipedia only exposes a `train` split
+    weight: 1.0
+    domain: wiki
+
+candidates:
+  - name: pl-bpe-32k
+    algorithm: bpe
+    vocab_size: 32000
+    byte_fallback: true
+    normalization: NFC
+  - name: pl-unigram-32k
+    algorithm: unigram
+    vocab_size: 32000
+    byte_fallback: true
+    normalization: NFC
+  - name: pl-superbpe-32k
+    algorithm: superbpe # cross-word "superword" tokens (arXiv:2503.13423)
+    vocab_size: 32000
+    byte_fallback: true
+    normalization: NFC
+
+targets:
+  # Bring Polish fertility to <= the English baseline on aligned FLORES content.
+  max_fertility_vs_english: 1.0
+  # Transplanted onto a model, downstream quality must not drop more than this.
+  max_quality_drop_pct: 1.0
+
+# The universal tokenizers we want to beat on Polish fertility. Gated repos
+# (e.g. google/gemma-2-9b, speakleash/Bielik-11B-v3.0-Instruct) are recorded as
+# skipped BaselineOutcomes unless the vault HF_TOKEN's account has accepted
+# their terms — the benchmark never aborts on a gated/unavailable baseline.
+baselines:
+  - gpt2
+  - meta-llama/Llama-3.1-8B
+  - mistralai/Mistral-7B-v0.1
+  - Qwen/Qwen2.5-7B
+  - deepseek-ai/DeepSeek-V3
+  - speakleash/Bielik-11B-v2.3-Instruct # Polish-tuned (Mistral-extended tokenizer)
+  - google/gemma-2-9b # gated -> skipped unless terms accepted
+  - speakleash/Bielik-11B-v3.0-Instruct # Polish-optimized APT4 reference; gated

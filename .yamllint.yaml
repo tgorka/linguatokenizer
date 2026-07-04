@@ -1,0 +1,23 @@
+---
+extends: default
+
+rules:
+  line-length:
+    max: 120
+    level: warning
+  document-start: disable
+  truthy:
+    # GitHub Actions uses bare `on:` which YAML 1.1 parses as a boolean.
+    check-keys: false
+  comments:
+    min-spaces-from-content: 1
+  indentation:
+    spaces: 2
+    indent-sequences: consistent
+
+ignore: |
+  .venv/
+  .git/
+  dist/
+  build/
+  **/node_modules/

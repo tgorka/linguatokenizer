@@ -30,7 +30,7 @@ development_status:
   epic-2-retrospective: optional
 
   epic-3: backlog
-  3-1-target-model-registry: backlog
+  3-1-target-model-registry: done
   3-2-extend-merge-adapter-compiler: backlog
   3-3-replace-adapter: backlog
   3-4-training-free-omp-embedding-init: backlog

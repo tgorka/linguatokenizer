@@ -3,6 +3,14 @@
 Findings surfaced during review that are real but out of scope for the story
 that surfaced them. Append-only; each entry names its source spec.
 
+- source_spec: `spec-3-1-target-model-registry.md`
+  summary: `load_target_tokenizer`'s `HF_TOKEN`-only lookup silently passes an empty string as `token` when the env var is set-but-empty, and never checks `HUGGINGFACE_HUB_TOKEN` (the convention `corpora/sources.py` already honors alongside `HF_TOKEN`).
+  evidence: `os.environ.get("HF_TOKEN")` mirrors the exact pre-existing pattern in `benchmark/compare.py::_load_baseline_encoder`, which has the same two gaps (empty-string passthrough, missing `HUGGINGFACE_HUB_TOKEN` fallback); this story only replicated an established convention rather than introducing the gap. A single shared `_resolve_hf_token()` helper normalizing both env vars and treating `""` as unset would fix both call sites at once.
+
+- source_spec: `spec-3-1-target-model-registry.md`
+  summary: `AdapterError` messages interpolate the raw underlying exception text (`f"...: {err}"`) with no redaction, mirroring `RecipeError`/`_load_baseline_encoder`'s existing convention.
+  evidence: If `transformers.AutoTokenizer.from_pretrained` ever raises with a path or partial credential embedded in its message, that text propagates verbatim into an application-level exception (and potentially into logs). Same shape of risk already exists at the two precedent call sites this story mirrored; worth addressing codebase-wide rather than one-off in the new module.
+
 - source_spec: `spec-1-1-recipe-schema-and-loader.md`
   summary: `Recipe` does not enforce that `train_corpora` and `eval_corpora` are disjoint, so a train/eval leak (same id+config+split in both) validates silently.
   evidence: The recipes and docstrings stress eval corpora are "never trained on," but nothing checks it; the Polish recipe reuses `wikimedia/wikipedia` across train/eval (legitimate via differing splits), yet an identical entry in both would pass unnoticed. Needs a cross-field validator that allows same-id-different-split but rejects true duplicates.

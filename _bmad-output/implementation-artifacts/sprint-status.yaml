@@ -24,7 +24,7 @@ development_status:
 
   epic-2: in-progress
   2-1-bpe-and-unigram-trainers: done
-  2-2-superbpe-superword-trainer: backlog
+  2-2-superbpe-superword-trainer: done
   2-3-iterate-to-target-fertility: backlog
   2-4-technical-vs-general-routing-experiment: backlog
   epic-2-retrospective: optional

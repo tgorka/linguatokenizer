@@ -91,6 +91,145 @@ def _train_bpe(candidate: Candidate, documents: list[str]) -> Tokenizer:
     return tokenizer
 
 
+def _greedy_superword_merges(  # noqa: PLR0912  (tight BPE inner loop)
+    seqs: list[list[int]],
+    id2tok: dict[int, str],
+    vocab: dict[str, int],
+    n_merges: int,
+    *,
+    min_count: int,
+) -> list[list[str]]:
+    """Greedily merge frequent adjacent token pairs (incl. across whitespace).
+
+    The classic BPE inner loop, run at the *token* level over stage-1 token
+    streams that were encoded without whitespace splitting — so the merges it
+    learns can span spaces, producing superword tokens. Uses incremental pair
+    counts + a lazy heap (stale entries skipped) so it scales to thousands of
+    merges without the O(steps x corpus) recount a naive version pays.
+
+    Mutates ``seqs``, ``id2tok`` and ``vocab`` in place; returns the ordered
+    list of ``"tokenA tokenB"`` merge rules to append to the BPE merges table.
+    """
+    import collections  # noqa: PLC0415
+    import heapq  # noqa: PLC0415
+    import itertools  # noqa: PLC0415
+
+    pair_counts: collections.Counter[tuple[int, int]] = collections.Counter()
+    for s in seqs:
+        for pair in itertools.pairwise(s):
+            pair_counts[pair] += 1
+    heap = [(-c, p) for p, c in pair_counts.items()]
+    heapq.heapify(heap)
+
+    new_merges: list[list[str]] = []
+    next_id = max(vocab.values()) + 1
+    while len(new_merges) < n_merges and heap:
+        neg_count, (a, b) = heapq.heappop(heap)
+        if -neg_count != pair_counts.get((a, b), 0):
+            continue  # stale heap entry
+        if -neg_count < min_count:
+            break
+        merged = id2tok[a] + id2tok[b]
+        if merged in vocab:
+            pair_counts[(a, b)] = 0
+            continue
+        mid = next_id
+        next_id += 1
+        new_merges.append([id2tok[a], id2tok[b]])
+        vocab[merged] = mid
+        id2tok[mid] = merged
+        for s in seqs:
+            i = 0
+            while i < len(s) - 1:
+                if s[i] == a and s[i + 1] == b:
+                    if i > 0:
+                        pair_counts[(s[i - 1], a)] -= 1
+                    if i + 2 < len(s):
+                        pair_counts[(b, s[i + 2])] -= 1
+                    s[i : i + 2] = [mid]
+                    if i > 0:
+                        p = (s[i - 1], s[i])
+                        pair_counts[p] += 1
+                        heapq.heappush(heap, (-pair_counts[p], p))
+                    if i + 1 < len(s):
+                        p = (s[i], s[i + 1])
+                        pair_counts[p] += 1
+                        heapq.heappush(heap, (-pair_counts[p], p))
+                else:
+                    i += 1
+        pair_counts[(a, b)] = 0
+    return new_merges
+
+
+def _train_superbpe(
+    candidate: Candidate,
+    documents: list[str],
+    *,
+    transition_ratio: float = 0.75,
+    min_count: int = 8,
+) -> Tokenizer:
+    """Train a SuperBPE (superword) tokenizer via a two-stage curriculum.
+
+    Stage 1 learns ordinary byte-level subword tokens *with* whitespace
+    pretokenization up to ``transition_ratio * vocab_size``. Stage 2 re-encodes
+    the corpus *without* whitespace splitting and greedily merges frequent
+    adjacent token pairs — which may now cross spaces — into "superword" tokens
+    until ``vocab_size`` is reached. Cross-word tokens raise chars/token and cut
+    fertility below what word-bounded BPE can reach (arXiv:2503.13423). The
+    returned tokenizer uses a no-``use_regex`` ByteLevel pretokenizer so the
+    superwords are actually emitted at inference.
+    """
+    from tokenizers import (  # noqa: PLC0415
+        Tokenizer,
+        decoders,
+        models,
+        pre_tokenizers,
+        trainers,
+    )
+
+    t_size = max(257, int(candidate.vocab_size * transition_ratio))
+    n_super = candidate.vocab_size - t_size
+
+    stage1 = Tokenizer(models.BPE(unk_token=None))
+    stage1.normalizer = _build_normalizer(candidate.normalization)
+    stage1.pre_tokenizer = pre_tokenizers.ByteLevel(add_prefix_space=False)
+    stage1.decoder = decoders.ByteLevel()
+    stage1.train_from_iterator(
+        documents,
+        trainers.BpeTrainer(
+            vocab_size=t_size,
+            initial_alphabet=pre_tokenizers.ByteLevel.alphabet(),
+        ),
+    )
+
+    data = json.loads(stage1.to_str())
+    # No-whitespace-split pretokenizer: lets stage-2 merges (and inference)
+    # span spaces to form superwords.
+    data["pre_tokenizer"] = {
+        "type": "ByteLevel",
+        "add_prefix_space": False,
+        "trim_offsets": True,
+        "use_regex": False,
+    }
+    nosplit = Tokenizer.from_str(json.dumps(data))
+    if n_super <= 0:
+        return nosplit
+
+    vocab: dict[str, int] = dict(data["model"]["vocab"])
+    id2tok = {i: t for t, i in vocab.items()}
+    seqs = [nosplit.encode(doc).ids for doc in documents]
+
+    new_merges = _greedy_superword_merges(
+        seqs, id2tok, vocab, n_super, min_count=min_count
+    )
+
+    # BPE vocab is a token->id map (mutated in place above); merges is a list
+    # of [tokenA, tokenB] pairs.
+    data["model"]["vocab"] = vocab
+    data["model"]["merges"] = list(data["model"]["merges"]) + new_merges
+    return Tokenizer.from_str(json.dumps(data))
+
+
 def _train_unigram(candidate: Candidate, documents: list[str]) -> Tokenizer:
     """Train a Unigram tokenizer for ``candidate``.
 
@@ -216,11 +355,13 @@ def train_candidate(
         tokenizer = _train_bpe(candidate, documents)
     elif candidate.algorithm == "unigram":
         tokenizer = _train_unigram(candidate, documents)
+    elif candidate.algorithm == "superbpe":
+        tokenizer = _train_superbpe(candidate, documents)
     else:
         raise TrainerError(
             f"candidate {candidate.name!r} has unsupported algorithm "
-            f"{candidate.algorithm!r} (only 'bpe'/'unigram' are trainable "
-            "here; 'superbpe' is Story 2.2)"
+            f"{candidate.algorithm!r} (expected 'bpe', 'unigram', or "
+            "'superbpe')"
         )
 
     # When byte_fallback is requested the metadata records it as true, so make

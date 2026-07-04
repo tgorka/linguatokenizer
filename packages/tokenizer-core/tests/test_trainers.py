@@ -132,6 +132,26 @@ def test_train_unigram_byte_fallback_flag_and_coverage_are_real(
     assert "<unk>" not in tokens
 
 
+def test_train_superbpe_forms_cross_word_tokens(tmp_path: Path) -> None:
+    pytest.importorskip("tokenizers")
+    # A recurring two-word phrase should become a single superword token.
+    path = tmp_path / "c.txt"
+    path.write_text("\n".join(["dobry pies i kot"] * 200), encoding="utf-8")
+    recipe = _recipe([_local_spec(path)])
+    tokenizer, metadata = train_candidate(
+        recipe, _candidate("superbpe"), n_docs=200, seed=5, data_dir=tmp_path
+    )
+    assert metadata.algorithm == "superbpe"
+    # At least one vocab token spans a space (byte-level space marker Ġ),
+    # i.e. a genuine cross-word superword was learned.
+    superwords = [
+        t for t in tokenizer.get_vocab() if "Ġ" in t[1:] and len(t) > 3
+    ]
+    assert superwords, "expected at least one cross-word superword token"
+    # And byte fallback still guarantees coverage of unseen characters.
+    assert "<unk>" not in tokenizer.encode("字").tokens
+
+
 def test_unigram_without_byte_fallback_has_flag_off(tmp_path: Path) -> None:
     pytest.importorskip("tokenizers")
     recipe = _recipe([_local_spec(_write_lines(tmp_path / "c.txt", 200))])
@@ -162,12 +182,19 @@ def test_deterministic_same_seed_same_corpus_hash(tmp_path: Path) -> None:
 
 
 def test_unsupported_algorithm_raises_trainer_error(tmp_path: Path) -> None:
+    # bpe/unigram/superbpe are all handled; the defensive branch only fires for
+    # an algorithm the Candidate Literal would normally reject, so bypass
+    # validation with model_construct to reach it.
     recipe = _recipe([_local_spec(_write_lines(tmp_path / "c.txt", 20))])
-    superbpe = Candidate(
-        name="xx-superbpe", algorithm="superbpe", vocab_size=500
+    bogus = Candidate.model_construct(
+        name="xx-bogus",
+        algorithm="wordpiece",
+        vocab_size=500,
+        byte_fallback=True,
+        normalization="NFC",
     )
-    with pytest.raises(TrainerError, match="superbpe"):
-        train_candidate(recipe, superbpe, n_docs=20, seed=0, data_dir=tmp_path)
+    with pytest.raises(TrainerError, match="wordpiece"):
+        train_candidate(recipe, bogus, n_docs=20, seed=0, data_dir=tmp_path)
 
 
 def test_zero_documents_raises_trainer_error(tmp_path: Path) -> None:

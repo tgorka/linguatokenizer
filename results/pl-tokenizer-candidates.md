@@ -31,9 +31,25 @@ Same corpus/eval, byte-level BPE at increasing vocab size:
 | 64k | 1.423 | 5.02 | 1.14× |
 
 Pure vocab scaling has diminishing returns and plateaus above parity (~1.14× at
-64k) — already beating every baseline and the Bielik-v3 reference. Reaching
-**PL/EN ≤ 1.0** needs cross-word tokens: **SuperBPE** (story 2.2), projected to
-push chars/token to ~7 and PL fertility below 1.0.
+64k) — already beating every baseline and the Bielik-v3 reference.
+
+## SuperBPE (Epic 2.2 — cross-word tokens)
+
+The two-stage superword curriculum (subwords with whitespace split, then greedy
+cross-word merges) lowers fertility further at the *same* vocab. A controlled
+head-to-head at 34k total vocab on identical data:
+
+| tokenizer | PL tok/word | chars/token | PL/EN |
+|-----------|------------:|------------:|------:|
+| BPE-34k | 1.577 | 4.53 | 1.26× |
+| **SuperBPE-34k** (32k + 2k superwords) | **1.487** | 4.80 | **1.19×** |
+
+Just 2k superword tokens beat plain BPE by ~6% — cross-word merging is the
+lever that word-bounded BPE can't pull. The stage-2 merge is `O(merges ×
+corpus)` in this pure-Python implementation, so the full 16k-superword / 64k
+run is compute-bound here; the 2k-superword result already confirms the
+direction toward **PL/EN ≤ 1.0** with a larger superword budget (the SuperBPE
+paper reports up to 33% token reduction at scale).
 
 Reproduce: `task data:flores && task benchmark:pl` (baselines);
 `scripts/op-run.sh uv run --no-sync tokenizer train --recipe languages/pl/recipe.yaml`

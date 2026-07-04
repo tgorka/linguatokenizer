@@ -187,7 +187,7 @@ def load_target_tokenizer(family: str) -> Encoder:
         ) from err
 
     try:
-        return transformers.AutoTokenizer.from_pretrained(
+        tokenizer = transformers.AutoTokenizer.from_pretrained(
             entry.hf_id, token=os.environ.get("HF_TOKEN")
         )
     except Exception as err:
@@ -195,3 +195,15 @@ def load_target_tokenizer(family: str) -> Encoder:
             f"failed to load target tokenizer for family {family!r} "
             f"(hf_id={entry.hf_id!r}): {err}"
         ) from err
+
+    # `AutoTokenizer.from_pretrained` raises rather than returning `None` in
+    # every real `transformers` code path; this guard exists only to narrow
+    # the stub-inferred `T | None` return type to this function's declared
+    # `Encoder` return type, and to fail loudly rather than propagate `None`
+    # in case a caller-supplied test double breaks that contract.
+    if tokenizer is None:
+        raise AdapterError(
+            f"failed to load target tokenizer for family {family!r} "
+            f"(hf_id={entry.hf_id!r}): from_pretrained returned None"
+        )
+    return tokenizer

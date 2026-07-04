@@ -82,7 +82,11 @@ def test_save_artifact_writes_both_files(tmp_path: Path) -> None:
     metadata = _metadata()
     out_dir = tmp_path / "artifact"
 
-    tokenizer_path, metadata_path = save_artifact(tokenizer, metadata, out_dir)
+    tokenizer_path, metadata_path = save_artifact(
+        tokenizer,  # ty: ignore[invalid-argument-type]
+        metadata,
+        out_dir,
+    )
 
     assert tokenizer_path == out_dir / "tokenizer.json"
     assert metadata_path == out_dir / "metadata.json"
@@ -99,7 +103,11 @@ def test_save_artifact_creates_missing_parent_dirs(tmp_path: Path) -> None:
     metadata = _metadata()
     out_dir = tmp_path / "a" / "b" / "c"
 
-    tokenizer_path, metadata_path = save_artifact(tokenizer, metadata, out_dir)
+    tokenizer_path, metadata_path = save_artifact(
+        tokenizer,  # ty: ignore[invalid-argument-type]
+        metadata,
+        out_dir,
+    )
 
     assert tokenizer_path.is_file()
     assert metadata_path.is_file()
@@ -115,7 +123,11 @@ def test_load_artifact_round_trip(
     original_tokenizer = _FakeTokenizer(payload="hello-world")
     original_metadata = _metadata(name="pl-unigram-32k", algorithm="unigram")
     out_dir = tmp_path / "artifact"
-    save_artifact(original_tokenizer, original_metadata, out_dir)
+    save_artifact(
+        original_tokenizer,  # ty: ignore[invalid-argument-type]
+        original_metadata,
+        out_dir,
+    )
 
     loaded_tokenizer, loaded_metadata = load_artifact(out_dir)
 

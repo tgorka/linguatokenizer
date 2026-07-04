@@ -132,6 +132,11 @@ def main() -> None:
             )
         except Exception:
             continue
+    if not base_lang:
+        raise SystemExit(
+            "no baseline tokenizers loaded — check network / HF_TOKEN access; "
+            "cannot compute the comparison"
+        )
     avg_base_lang = sum(base_lang) / len(base_lang)
     avg_base_eng = sum(base_eng) / len(base_eng)
 

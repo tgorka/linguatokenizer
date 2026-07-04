@@ -22,7 +22,9 @@ fi
 
 mkdir -p "$DEST"
 echo "downloading FLORES-200 (CC-BY-SA-4.0) -> $DEST ..."
-curl -sSL -o "$DEST/flores200_dataset.tar.gz" "$URL"
+# -f: fail fast (non-zero) on HTTP 4xx/5xx instead of saving an error page that
+# then dies with a confusing `tar: not in gzip format`.
+curl -fsSL -o "$DEST/flores200_dataset.tar.gz" "$URL"
 tar xzf "$DEST/flores200_dataset.tar.gz" -C "$DEST"
 echo "extracted. pol/eng devtest:"
 wc -l "$DEST/flores200_dataset/devtest/pol_Latn.devtest" \

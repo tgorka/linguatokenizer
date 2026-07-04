@@ -53,7 +53,11 @@ def _stage_one(dataset_id: str, config: str, budget: int, out: Path) -> None:
             if not line:
                 continue
             fh.write(line + "\n")
-            written += len(line) + 1
+            # Track UTF-8 bytes (not characters): the budget and the
+            # idempotency threshold in ``_stage_one`` are both in bytes, and
+            # Polish diacritics are 2 bytes each, so a character count would
+            # over-shoot the target for Polish text.
+            written += len((line + "\n").encode("utf-8"))
             docs += 1
             if written >= budget:
                 break

@@ -179,7 +179,7 @@ def _resolve_url(spec: CorpusSpec, data_dir: Path) -> Iterator[str]:
     cache_path = _cache_path_for_url(spec.id, data_dir)
     if not cache_path.is_file():
         try:
-            with urllib.request.urlopen(spec.id) as response:
+            with urllib.request.urlopen(spec.id, timeout=60) as response:
                 raw = response.read()
         except Exception as err:
             raise SourceError(
@@ -207,14 +207,21 @@ def _resolve_local(spec: CorpusSpec) -> Iterator[str]:
 def _iter_lines(path: Path) -> Iterator[str]:
     """Yield non-empty, stripped lines from a UTF-8 text file.
 
+    Streams line by line from the open file rather than reading it whole, so a
+    multi-GB corpus does not have to fit in RAM.
+
     Raises:
         SourceError: If ``path`` cannot be read or is not valid UTF-8.
     """
     try:
-        text = path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError) as err:
+        handle = path.open(encoding="utf-8")
+    except OSError as err:
         raise SourceError(f"cannot read source file {path}: {err}") from err
-    for line in text.splitlines():
-        stripped = line.strip()
-        if stripped:
-            yield stripped
+    with handle:
+        try:
+            for line in handle:
+                stripped = line.strip()
+                if stripped:
+                    yield stripped
+        except UnicodeDecodeError as err:
+            raise SourceError(f"cannot read source file {path}: {err}") from err

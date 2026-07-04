@@ -113,13 +113,15 @@ def _load_baseline_encoder(name: str) -> tuple[Encoder | None, str | None]:
         gated repo without accepted terms, missing token, bad id, missing
         ``transformers`` extra, ...).
     """
-    import transformers  # noqa: PLC0415
-
     try:
+        import transformers  # noqa: PLC0415
+
         tokenizer = transformers.AutoTokenizer.from_pretrained(
             name, token=os.environ.get("HF_TOKEN")
         )
     except Exception as err:
+        # Import inside the guard too: in an extras-free environment the
+        # missing `transformers` should skip the baseline, not crash the run.
         return None, f"failed to load baseline {name!r}: {err}"
     return tokenizer, None
 

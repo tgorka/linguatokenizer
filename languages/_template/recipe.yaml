@@ -26,7 +26,7 @@ eval_corpora:
   - source: hf
     id: wikimedia/wikipedia
     config: 20231101.xx
-    split: test
+    split: train # wikimedia/wikipedia only exposes a `train` split
     weight: 1.0
     domain: general
 

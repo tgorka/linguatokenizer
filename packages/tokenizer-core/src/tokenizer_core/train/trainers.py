@@ -179,6 +179,20 @@ def _train_superbpe(
     returned tokenizer uses a no-``use_regex`` ByteLevel pretokenizer so the
     superwords are actually emitted at inference.
     """
+    # SuperBPE reserves the 256-byte alphabet for stage 1 and needs headroom
+    # above it for both subwords and superwords. Below that a request can't be
+    # honored (stage 1 would already exceed vocab_size, leaving no superwords),
+    # so reject it rather than silently produce an artifact whose real vocab
+    # size differs from the requested one. Checked before the tokenizers import
+    # so it raises the typed error even without the optional extra installed.
+    min_vocab = 512
+    if candidate.vocab_size < min_vocab:
+        raise TrainerError(
+            f"candidate {candidate.name!r}: superbpe needs vocab_size >= "
+            f"{min_vocab} (byte alphabet + subwords + superwords), got "
+            f"{candidate.vocab_size}"
+        )
+
     from tokenizers import (  # noqa: PLC0415
         Tokenizer,
         decoders,

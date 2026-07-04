@@ -84,9 +84,11 @@ def _make_polish_artifact(
 ) -> Path:
     corpus_path = _write_lines(tmp_path / "corpus.txt", n_docs)
     recipe = _recipe([_local_spec(corpus_path)])
+    # superbpe needs vocab_size >= 512 (byte alphabet + subwords + superwords).
+    vocab_size = 600 if algorithm == "superbpe" else 500
     tokenizer, metadata = train_candidate(
         recipe,
-        _polish_candidate(algorithm),
+        _polish_candidate(algorithm, vocab_size=vocab_size),
         n_docs=n_docs,
         seed=seed,
         data_dir=tmp_path,

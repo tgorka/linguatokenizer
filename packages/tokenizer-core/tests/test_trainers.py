@@ -67,13 +67,14 @@ def _candidate(
     algorithm: Literal["bpe", "unigram", "superbpe"],
     *,
     byte_fallback: bool = True,
+    vocab_size: int = 500,
 ) -> Candidate:
     # vocab must exceed the 256 byte tokens + specials for a byte-fallback
     # Unigram to have room for learned pieces.
     return Candidate(
         name=f"xx-{algorithm}",
         algorithm=algorithm,
-        vocab_size=500,
+        vocab_size=vocab_size,
         byte_fallback=byte_fallback,
         normalization="NFC",
     )
@@ -139,7 +140,11 @@ def test_train_superbpe_forms_cross_word_tokens(tmp_path: Path) -> None:
     path.write_text("\n".join(["dobry pies i kot"] * 200), encoding="utf-8")
     recipe = _recipe([_local_spec(path)])
     tokenizer, metadata = train_candidate(
-        recipe, _candidate("superbpe"), n_docs=200, seed=5, data_dir=tmp_path
+        recipe,
+        _candidate("superbpe", vocab_size=600),
+        n_docs=200,
+        seed=5,
+        data_dir=tmp_path,
     )
     assert metadata.algorithm == "superbpe"
     # At least one vocab token spans a space (byte-level space marker Ġ),
@@ -150,6 +155,20 @@ def test_train_superbpe_forms_cross_word_tokens(tmp_path: Path) -> None:
     assert superwords, "expected at least one cross-word superword token"
     # And byte fallback still guarantees coverage of unseen characters.
     assert "<unk>" not in tokenizer.encode("字").tokens
+
+
+def test_superbpe_rejects_too_small_vocab(tmp_path: Path) -> None:
+    # Below the byte-alphabet + headroom minimum, superbpe can't honor the
+    # requested vocab size, so it must raise rather than mismatch metadata.
+    recipe = _recipe([_local_spec(_write_lines(tmp_path / "c.txt", 20))])
+    with pytest.raises(TrainerError, match="vocab_size"):
+        train_candidate(
+            recipe,
+            _candidate("superbpe", vocab_size=300),
+            n_docs=20,
+            seed=0,
+            data_dir=tmp_path,
+        )
 
 
 def test_unigram_without_byte_fallback_has_flag_off(tmp_path: Path) -> None:

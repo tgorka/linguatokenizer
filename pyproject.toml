@@ -121,6 +121,7 @@ include = [
     "packages/tokenizer-core/src/tokenizer_core/adapters/registry.py",
     "packages/tokenizer-core/src/tokenizer_core/adapters/extend.py",
     "packages/tokenizer-core/src/tokenizer_core/adapters/base.py",
+    "packages/tokenizer-core/src/tokenizer_core/adapters/embed.py",
     "packages/tokenizer-core/tests/test_extend.py",
 ]
 

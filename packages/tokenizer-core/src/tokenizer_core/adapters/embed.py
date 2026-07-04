@@ -151,10 +151,18 @@ def transplant_embeddings(
             f"need at least base_vocab_size={base_vocab}"
         )
 
-    base = base_embeddings[:base_vocab]
-    global_mean = np.mean(base, axis=0)
-    dim = base.shape[1]
-    new_rows = np.empty((len(result.added_tokens), dim), dtype=base.dtype)
+    # Two distinct roles for the base matrix:
+    #  - `preserved`: the rows carried into the output unchanged (the target's
+    #    kept vocab). For extend this is the whole target vocab; for replace
+    #    (base_vocab == 0) it is empty.
+    #  - `donor`: the FULL base embeddings, always used as the FVT source and
+    #    global-mean fallback — even when preserving nothing, we still warm-start
+    #    the new rows from the donor model (otherwise an empty slice -> NaN).
+    donor = base_embeddings
+    preserved = base_embeddings[:base_vocab]
+    global_mean = np.mean(donor, axis=0)
+    dim = donor.shape[1]
+    new_rows = np.empty((len(result.added_tokens), dim), dtype=donor.dtype)
 
     for i in range(len(result.added_tokens)):
         if method == "mean":
@@ -162,7 +170,7 @@ def transplant_embeddings(
             continue
         surface = _surface(result.tokenizer, base_vocab + i)
         new_rows[i] = fvt_embedding(
-            surface, base_tokenizer, base, fallback=global_mean
+            surface, base_tokenizer, donor, fallback=global_mean
         )
 
-    return np.concatenate([base, new_rows], axis=0)
+    return np.concatenate([preserved, new_rows], axis=0)

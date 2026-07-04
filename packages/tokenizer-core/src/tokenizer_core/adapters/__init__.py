@@ -20,6 +20,7 @@ from tokenizer_core.adapters.registry import (
     TokenizerFormat,
     load_target_tokenizer,
 )
+from tokenizer_core.adapters.replace import replace
 
 __all__ = [
     "REGISTRY",
@@ -31,5 +32,6 @@ __all__ = [
     "extend",
     "load_target_tokenizer",
     "read_token_embeddings",
+    "replace",
     "transplant_embeddings",
 ]

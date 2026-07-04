@@ -96,6 +96,21 @@ def test_out_of_range_subword_ids_are_ignored() -> None:
     assert np.allclose(out[4], base_emb[1])
 
 
+def test_replace_layout_base_vocab_zero_fvt_from_full_donor() -> None:
+    # replace() hands base_vocab_size=0; the FVT donor must still be the full
+    # base matrix (not an empty slice), so every new row is finite, not NaN.
+    np = pytest.importorskip("numpy")
+    base_emb = np.arange(12, dtype=np.float32).reshape(4, 3)
+    result = _result([" kot", " pies"], base_vocab=0)
+    base_tok = _FakeBaseTokenizer({" kot": [0, 1], " pies": [2]})
+
+    out = transplant_embeddings(result, base_emb, base_tok, method="fvt")
+
+    assert out.shape == (2, 3)  # nothing preserved, both rows are new
+    assert np.isfinite(out).all()
+    assert np.allclose(out[0], base_emb[[0, 1]].mean(axis=0))
+
+
 def test_too_few_base_rows_raises() -> None:
     np = pytest.importorskip("numpy")
     base_emb = np.zeros((3, 3), dtype=np.float32)

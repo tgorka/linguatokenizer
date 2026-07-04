@@ -101,6 +101,12 @@ addopts = ["-ra", "--strict-markers", "--strict-config"]
 # -----------------------------------------------------------------------------
 [tool.ty.src]
 include = ["packages"]
+# Tests are validated by running them (pytest), not by ty. They use fake
+# tokenizer/dataset doubles and importorskip, whose apparent types flip between
+# the extras-installed and extras-free (CI) environments — type-checking them
+# produces unstable unused-ignore / invalid-argument noise with no real safety
+# gain. Exclude the test tree so the check is stable in both modes.
+exclude = ["**/tests/**"]
 
 # Modules that lazy-import an optional extra (kept out of the base install)
 # behind a runtime guard trip ty's unresolved-import when the extra is not

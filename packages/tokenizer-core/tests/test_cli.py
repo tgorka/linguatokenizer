@@ -1,10 +1,12 @@
 """Tests for the CLI's argument-parsing/wiring, incl. the ``benchmark``
-subcommand (Story 1.4).
+(Story 1.4) and ``train`` (Story 2.1) subcommands.
 
-The ``benchmark`` handler's scoring pipeline (``compare_baselines``) is
+The ``benchmark``/``train`` handlers' underlying pipelines
+(``compare_baselines``/``train_candidate``/``save_artifact``) are
 monkeypatched here so this module tests only the CLI wiring -- argument
-parsing, defaults, and that the handler writes both output artifacts -- in
-isolation from real HF network access, matching the story's I/O Matrix.
+parsing, defaults, and skip-and-continue behavior -- in isolation from real
+HF network access or the native ``tokenizers`` dependency, matching each
+story's I/O Matrix.
 """
 
 from __future__ import annotations
@@ -20,6 +22,15 @@ from tokenizer_core.benchmark.fertility import (
     AlignedFertilityReport,
     FertilityReport,
 )
+from tokenizer_core.train.artifact import TrainerMetadata
+from tokenizer_core.train.config import (
+    Candidate,
+    CorpusSpec,
+    Language,
+    Recipe,
+    Targets,
+)
+from tokenizer_core.train.trainers import TrainerError
 
 
 def test_build_parser_has_version() -> None:
@@ -153,3 +164,131 @@ def test_main_benchmark_writes_json_and_markdown(
     assert "fertility_vs_english=2.000" in captured.out
     assert "fake/baseline-b" in captured.out
     assert "skipped" in captured.out
+
+
+# --- train subcommand (Story 2.1) ------------------------------------------
+
+
+def test_train_subcommand_defaults() -> None:
+    parser = cli.build_parser()
+    args = parser.parse_args(["train"])
+
+    assert args.command == "train"
+    assert args.recipe == "languages/pl/recipe.yaml"
+    assert args.data_dir is None
+    assert args.n_docs == 10_000
+    assert args.seed == 42
+    assert args.func is cli._run_train
+
+
+def test_train_subcommand_accepts_overrides() -> None:
+    parser = cli.build_parser()
+    args = parser.parse_args(
+        [
+            "train",
+            "--recipe",
+            "languages/xx/recipe.yaml",
+            "--data-dir",
+            "/tmp/data",
+            "--n-docs",
+            "1000",
+            "--seed",
+            "1",
+        ]
+    )
+
+    assert args.recipe == "languages/xx/recipe.yaml"
+    assert args.data_dir == "/tmp/data"
+    assert args.n_docs == 1000
+    assert args.seed == 1
+
+
+def _fake_recipe() -> Recipe:
+    corpus = CorpusSpec(source="local", id="unused.txt", weight=1.0)
+    return Recipe(
+        language=Language(code="pl", name="Polish", scripts=["Latn"]),
+        train_corpora=[corpus],
+        eval_corpora=[corpus],
+        candidates=[
+            Candidate(name="pl-bpe-32k", algorithm="bpe", vocab_size=100),
+            Candidate(
+                name="pl-unigram-32k", algorithm="unigram", vocab_size=100
+            ),
+            Candidate(
+                name="pl-superbpe-32k", algorithm="superbpe", vocab_size=100
+            ),
+        ],
+        targets=Targets(max_fertility_vs_english=1.0, max_quality_drop_pct=1.0),
+        baselines=["gpt2"],
+    )
+
+
+def test_main_train_trains_saves_and_skips_unsupported(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    recipe_path = tmp_path / "recipe.yaml"
+    recipe_path.write_text("placeholder: true", encoding="utf-8")
+    data_dir = tmp_path / "data"
+
+    fake_recipe = _fake_recipe()
+    monkeypatch.setattr(
+        cli.Recipe, "load", staticmethod(lambda path: fake_recipe)
+    )
+
+    trained_calls: list[str] = []
+
+    def fake_train_candidate(recipe, candidate, *, n_docs, seed, data_dir):
+        if candidate.algorithm not in ("bpe", "unigram"):
+            raise TrainerError(
+                f"candidate {candidate.name!r} has unsupported algorithm "
+                f"{candidate.algorithm!r}"
+            )
+        trained_calls.append(candidate.name)
+        metadata = TrainerMetadata(
+            name=candidate.name,
+            algorithm=candidate.algorithm,
+            vocab_size=candidate.vocab_size,
+            byte_fallback=candidate.byte_fallback,
+            normalization=candidate.normalization,
+            corpus_hash=f"hash-{candidate.name}",
+            seed=seed,
+            language_code=recipe.language.code,
+        )
+        return object(), metadata
+
+    saved_dirs: list[Path] = []
+
+    def fake_save_artifact(tokenizer, metadata, out_dir):
+        saved_dirs.append(Path(out_dir))
+        out_path = Path(out_dir)
+        out_path.mkdir(parents=True, exist_ok=True)
+        return out_path / "tokenizer.json", out_path / "metadata.json"
+
+    monkeypatch.setattr(cli, "train_candidate", fake_train_candidate)
+    monkeypatch.setattr(cli, "save_artifact", fake_save_artifact)
+
+    exit_code = cli.main(
+        [
+            "train",
+            "--recipe",
+            str(recipe_path),
+            "--data-dir",
+            str(data_dir),
+        ]
+    )
+
+    assert exit_code == 0
+    assert trained_calls == ["pl-bpe-32k", "pl-unigram-32k"]
+    assert saved_dirs == [
+        data_dir / "tokenizers" / "pl" / "pl-bpe-32k",
+        data_dir / "tokenizers" / "pl" / "pl-unigram-32k",
+    ]
+
+    captured = capsys.readouterr()
+    assert "pl-bpe-32k: trained" in captured.out
+    assert "hash-pl-bpe-32k" in captured.out
+    assert "pl-unigram-32k: trained" in captured.out
+    assert "pl-superbpe-32k: skipped" in captured.out
+    assert "superbpe" in captured.out

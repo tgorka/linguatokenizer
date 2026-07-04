@@ -110,6 +110,8 @@ include = ["packages"]
 include = [
     "packages/tokenizer-core/src/tokenizer_core/corpora/sources.py",
     "packages/tokenizer-core/src/tokenizer_core/benchmark/compare.py",
+    "packages/tokenizer-core/src/tokenizer_core/train/artifact.py",
+    "packages/tokenizer-core/src/tokenizer_core/train/trainers.py",
 ]
 
 [tool.ty.overrides.rules]

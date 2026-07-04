@@ -41,6 +41,11 @@ tasks:
     cmds:
       - scripts/op-run.sh uv run tokenizer benchmark --recipe languages/pl/recipe.yaml
 
+  train:pl:
+    desc: Train the bpe/unigram candidates in the Polish recipe
+    cmds:
+      - scripts/op-run.sh uv run tokenizer train --recipe languages/pl/recipe.yaml
+
   # --- Secrets (1Password) ---------------------------------------------------
   secrets:check:
     desc: Resolve op.env against the neuraffica 1Password vault (keys only, values masked)

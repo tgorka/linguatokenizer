@@ -154,7 +154,7 @@ def sample_corpora(
     seed: int,
     language_code: str,
     data_dir: str | os.PathLike[str] | None = None,
-) -> CorpusManifest:
+) -> tuple[CorpusManifest, list[str]]:
     """Draw a deterministic, seeded, weighted mix across ``corpora``.
 
     Weight shares are normalized across *all* sources passed in (including
@@ -176,8 +176,10 @@ def sample_corpora(
             ``$TOKENIZER_DATA_DIR`` when omitted.
 
     Returns:
-        The :class:`CorpusManifest`, also written to
-        ``{data_dir}/corpora/{language_code}/manifest.json``.
+        A ``(manifest, documents)`` tuple: the :class:`CorpusManifest` (also
+        written to ``{data_dir}/corpora/{language_code}/manifest.json``) and
+        the actual sampled documents, concatenated in source order -- exactly
+        the text each source's ``content_sha256`` was hashed from.
 
     Raises:
         ValueError: If ``corpora`` is empty or ``n_docs`` is negative.
@@ -203,6 +205,7 @@ def sample_corpora(
         quotas[i] += 1
 
     entries: list[SourceManifestEntry] = []
+    all_sampled: list[str] = []
     n_docs_sampled = 0
     for spec, k in zip(corpora, quotas, strict=True):
         rng = random.Random(seed)
@@ -210,6 +213,7 @@ def sample_corpora(
         skipped = skip_reason is not None
         sampled = [] if skipped else _reservoir(documents, k, rng)
         n_docs_sampled += len(sampled)
+        all_sampled.extend(sampled)
         entries.append(
             SourceManifestEntry(
                 source=spec.source,
@@ -246,4 +250,4 @@ def sample_corpora(
             f"failed to write corpus manifest to {manifest_path}"
         ) from err
 
-    return manifest
+    return manifest, all_sampled

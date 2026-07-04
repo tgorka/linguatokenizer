@@ -52,3 +52,19 @@ reported at ~1.62 tok/word in arXiv:2604.10799 — the target to beat). Full
 data in `results/baselines-pl-en.json`.
 
 **Target:** a trained Polish tokenizer at **PL/EN ≤ 1.0** (Epic 2).
+
+## Trained result (Epic 2.1 — BPE)
+
+Our first candidate `pl-bpe-32k` (32k byte-level BPE, trained on ~75 MB of
+FineWeb-2 + Wikipedia Polish, **no model retraining**) scored on FLORES-200:
+
+| | PL tok/word | chars/token |
+|--|------------:|------------:|
+| **pl-bpe-32k (ours)** | **1.561** | 4.58 |
+| Bielik-v3 APT4 (paper) | ~1.62 | 4.78 |
+| Llama-3.1 / Mistral / gpt2 | 2.68 / 2.97 / 3.71 | — |
+
+**33–58% fewer Polish tokens than the universal baselines, matching/beating the
+Polish-optimized Bielik-v3 reference.** vs English parity (~1.25) we're at
+~1.25×; the 48–64k vocab sweep and SuperBPE (2.2–2.3) target ≤ 1.0. Full
+numbers in `results/pl-tokenizer-candidates.{md,json}`.

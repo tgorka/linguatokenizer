@@ -41,7 +41,7 @@ def test_weighted_seeded_mix_matches_expected_quotas(tmp_path: Path):
     c = _local_spec(_write_lines(tmp_path / "c.txt", 50), weight=0.2)
     data_dir = tmp_path / "data"
 
-    manifest = sample_corpora(
+    manifest, docs = sample_corpora(
         [a, b, c],
         n_docs=10,
         seed=7,
@@ -52,6 +52,7 @@ def test_weighted_seeded_mix_matches_expected_quotas(tmp_path: Path):
     assert [e.n_docs_sampled for e in manifest.sources] == [5, 3, 2]
     assert manifest.n_docs_requested == 10
     assert manifest.n_docs_sampled == 10
+    assert len(docs) == 10
 
     manifest_path = data_dir / "corpora" / "xx" / "manifest.json"
     assert manifest_path.is_file()
@@ -59,7 +60,7 @@ def test_weighted_seeded_mix_matches_expected_quotas(tmp_path: Path):
     assert on_disk["n_docs_sampled"] == 10
 
     # Reproducible: a second run with the same seed yields identical hashes.
-    manifest2 = sample_corpora(
+    manifest2, docs2 = sample_corpora(
         [a, b, c],
         n_docs=10,
         seed=7,
@@ -69,6 +70,7 @@ def test_weighted_seeded_mix_matches_expected_quotas(tmp_path: Path):
     assert [e.content_sha256 for e in manifest.sources] == [
         e.content_sha256 for e in manifest2.sources
     ]
+    assert docs == docs2
 
 
 def test_mix_with_one_skipped_source_not_redistributed(
@@ -96,7 +98,7 @@ def test_mix_with_one_skipped_source_not_redistributed(
     monkeypatch.setitem(sys.modules, "datasets", fake_datasets)
 
     data_dir = tmp_path / "data"
-    manifest = sample_corpora(
+    manifest, _docs = sample_corpora(
         [a, b, gated],
         n_docs=10,
         seed=7,
@@ -136,7 +138,7 @@ def test_zero_quota_source_is_not_iterated(tmp_path: Path):
     a = _local_spec(_write_lines(tmp_path / "a.txt", 5), weight=0.999)
     tiny = _local_spec(_write_lines(tmp_path / "tiny.txt", 5), weight=0.001)
 
-    manifest = sample_corpora(
+    manifest, _docs = sample_corpora(
         [a, tiny],
         n_docs=1,
         seed=7,
@@ -185,14 +187,14 @@ def test_different_seed_changes_sampled_docs(tmp_path: Path):
     b = _local_spec(_write_lines(tmp_path / "b.txt", 50), weight=0.3)
     c = _local_spec(_write_lines(tmp_path / "c.txt", 50), weight=0.2)
 
-    manifest_seed7 = sample_corpora(
+    manifest_seed7, _docs7 = sample_corpora(
         [a, b, c],
         n_docs=10,
         seed=7,
         language_code="xx",
         data_dir=tmp_path / "data7",
     )
-    manifest_seed8 = sample_corpora(
+    manifest_seed8, _docs8 = sample_corpora(
         [a, b, c],
         n_docs=10,
         seed=8,

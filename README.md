@@ -35,6 +35,28 @@ for other languages.
 The **North Star metric** is *fertility* (tokens/word) on held-out, sentence-
 aligned text — see `tokenizer_core.benchmark.fertility`.
 
+## Results so far (Polish, measured on FLORES-200)
+
+Fertility = tokens per word on 1012 sentence-aligned PL/EN pairs. Lower is
+better; the baselines show the ~2× Polish tax, our tokenizers cut it — **with
+no model retraining**.
+
+| Tokenizer | PL tok/word | PL vs EN |
+|-----------|------------:|---------:|
+| gpt2 (baseline) | 3.71 | 3.02× |
+| Mistral-7B / Bielik-v2.3 (baseline) | 2.97 | 2.11× |
+| Llama-3.1-8B (baseline) | 2.68 | 2.09× |
+| DeepSeek-V3 (baseline) | 2.33 | 1.90× |
+| Bielik-v3 APT4 (Polish-optimized ref, paper) | ~1.62 | — |
+| **ours: BPE 32k** | **1.56** | 1.25× |
+| **ours: BPE 64k** | **1.42** | 1.14× |
+| **ours: SuperBPE 34k** | **1.49** (beats BPE-34k 1.58) | 1.19× |
+
+Our purpose-built Polish tokenizer cuts Polish token counts by **33–58%**
+versus the universal baselines and matches/beats the Polish-optimized Bielik-v3
+reference. SuperBPE's cross-word tokens push further toward English parity.
+Details + reproduction in `results/` and `languages/pl/README.md`.
+
 ## Adapters
 
 For each target model (Mistral 2/3/4, Llama, GLM, Nemotron, Qwen, Kimi,

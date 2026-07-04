@@ -17,7 +17,12 @@ cache_read_weight = 0.1      # cache reads bill at ~0.1x input on all vendors; 1
 
 [verify]
 # Deterministic gates run by the orchestrator after a clean review, before commit.
-commands = []                # e.g. ["pytest -q", "ruff check ."]
+commands = [
+    "uv run ruff check .",
+    "uv run ruff format --check .",
+    "uv run ty check",
+    "uv run pytest -q",
+]
 
 [notify]
 desktop = true               # notify-send, best-effort

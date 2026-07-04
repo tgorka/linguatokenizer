@@ -21,6 +21,7 @@ from tokenizer_core.benchmark.compare import (
     BaselineOutcome,
     CompareError,
     ComparisonReport,
+    _find_aligned_pair,
     compare_baselines,
     write_comparison_markdown,
 )
@@ -405,3 +406,59 @@ def test_compare_baselines_no_aligned_pair_raises(
     )
     with pytest.raises(CompareError, match="no aligned eval pair"):
         compare_baselines(recipe)
+
+
+# --- aligned-pair detection across scripts (multi-language) -----------------
+
+
+def test_find_aligned_pair_non_latin_script() -> None:
+    # Russian (rus_Cyrl) target + English must be found — not just *_Latn.
+    recipe = _recipe(
+        eval_corpora=[
+            {
+                "source": "local",
+                "id": "/data/rus.devtest",
+                "config": "rus_Cyrl",
+                "split": "devtest",
+            },
+            {
+                "source": "local",
+                "id": "/data/eng.devtest",
+                "config": "eng_Latn",
+                "split": "devtest",
+            },
+        ]
+    )
+    target, english = _find_aligned_pair(recipe)
+    assert target.config == "rus_Cyrl"
+    assert english.config == "eng_Latn"
+
+
+def test_find_aligned_pair_ignores_non_flores_eval_entries() -> None:
+    # A wikipedia eval entry (config 20231101.de) must not be mistaken for the
+    # FLORES target; the deu_Latn FLORES entry is picked instead.
+    recipe = _recipe(
+        eval_corpora=[
+            {
+                "source": "local",
+                "id": "/data/deu.devtest",
+                "config": "deu_Latn",
+                "split": "devtest",
+            },
+            {
+                "source": "local",
+                "id": "/data/eng.devtest",
+                "config": "eng_Latn",
+                "split": "devtest",
+            },
+            {
+                "source": "hf",
+                "id": "wikimedia/wikipedia",
+                "config": "20231101.de",
+                "split": "train",
+            },
+        ]
+    )
+    target, english = _find_aligned_pair(recipe)
+    assert target.config == "deu_Latn"
+    assert english.config == "eng_Latn"

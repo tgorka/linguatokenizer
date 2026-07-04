@@ -15,3 +15,5 @@ per-language notes under [`../languages/`](../languages/).
 - [`ei-models-integration.md`](ei-models-integration.md) — verify the tokenizer
   penalty is gone in the ei-models experiments.
 - [`benchmark-report.md`](benchmark-report.md) — all results, consolidated.
+- [`add-a-language.md`](add-a-language.md) — extend the pipeline to any language
+  (proven on Polish, German, Russian).

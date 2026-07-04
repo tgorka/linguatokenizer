@@ -18,6 +18,7 @@ that fails to load as a skip rather than aborting the whole run.
 from __future__ import annotations
 
 import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -36,6 +37,9 @@ if TYPE_CHECKING:
 _FLORES_SOURCE = "hf"
 _FLORES_ID = "facebook/flores"
 _ENGLISH_CONFIG = "eng_Latn"
+# A FLORES-200 language config: ISO 639-3 + ISO 15924 script, e.g. deu_Latn,
+# rus_Cyrl, hin_Deva, zho_Hans. Matches any script, not just Latin.
+_FLORES_CONFIG_RE = re.compile(r"^[a-z]{3}_[A-Z][a-z]{3}$")
 
 
 class CompareError(Exception):
@@ -137,10 +141,10 @@ def _find_aligned_pair(recipe: Recipe) -> tuple[CorpusSpec, CorpusSpec]:
     Two layouts are supported, in priority order:
 
     1. **Explicit local/hf pair** — the recipe has one eval entry configured
-       ``eng_Latn`` (English) and one other ``*_Latn`` entry (the target
-       language). This is the ungated, reproducible path used by the Polish
-       recipe, which points ``source="local"`` entries at the FLORES-200
-       files fetched by ``scripts/fetch-flores.sh``.
+       ``eng_Latn`` (English) and one other FLORES-config entry (``<iso639-3>_
+       <Script>``, e.g. ``pol_Latn``, ``rus_Cyrl``, ``hin_Deva``) — any script,
+       not just Latin. This is the ungated, reproducible path: ``source="local"``
+       entries pointing at the FLORES-200 files from ``scripts/fetch-flores.sh``.
     2. **Back-compat single ``facebook/flores`` hf entry** — the target spec is
        that entry and English is derived by swapping its ``config`` to
        ``eng_Latn`` (both configs live under the one gated hf dataset).
@@ -157,8 +161,8 @@ def _find_aligned_pair(recipe: Recipe) -> tuple[CorpusSpec, CorpusSpec]:
             s
             for s in recipe.eval_corpora
             if s.config is not None
-            and s.config.endswith("_Latn")
             and s.config != _ENGLISH_CONFIG
+            and _FLORES_CONFIG_RE.match(s.config)
         ),
         None,
     )

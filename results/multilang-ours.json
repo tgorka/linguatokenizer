@@ -1,0 +1,22 @@
+{
+  "de": {
+    "candidate": "de-bpe-32k",
+    "flores": "deu_Latn",
+    "vocab_size": 32000,
+    "ours_tokens_per_sentence": 31.24,
+    "baseline_tokens_per_sentence": 45.92,
+    "token_reduction_vs_baseline_pct": 32.0,
+    "ours_vs_english_parity_x": 1.138,
+    "baseline_penalty_vs_english_x": 1.673
+  },
+  "ru": {
+    "candidate": "ru-bpe-32k",
+    "flores": "rus_Cyrl",
+    "vocab_size": 32000,
+    "ours_tokens_per_sentence": 31.14,
+    "baseline_tokens_per_sentence": 68.04,
+    "token_reduction_vs_baseline_pct": 54.2,
+    "ours_vs_english_parity_x": 1.135,
+    "baseline_penalty_vs_english_x": 2.479
+  }
+}

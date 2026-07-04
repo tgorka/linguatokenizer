@@ -20,9 +20,50 @@ from tokenizer_core.benchmark import (
 )
 from tokenizer_core.benchmark.fertility import write_report
 from tokenizer_core.corpora.sources import _resolve_data_dir
+from tokenizer_core.economics import PRICING_PRESETS, estimate_savings
 from tokenizer_core.train.artifact import save_artifact
 from tokenizer_core.train.config import Recipe
 from tokenizer_core.train.trainers import TrainerError, train_candidate
+
+
+def _run_economics(args: argparse.Namespace) -> int:
+    """Handler for the ``economics`` subcommand.
+
+    Turns a baseline vs optimized fertility (tokens/word) plus a monthly
+    workload and a pricing preset into cost/throughput/context savings.
+    """
+    pricing = PRICING_PRESETS.get(args.pricing)
+    if pricing is None:
+        print(
+            f"unknown pricing preset {args.pricing!r}; choose from "
+            f"{sorted(PRICING_PRESETS)}"
+        )
+        return 2
+
+    report = estimate_savings(
+        args.baseline_fertility,
+        args.optimized_fertility,
+        pricing=pricing,
+        input_words_per_month=args.input_words,
+        output_words_per_month=args.output_words,
+    )
+    print(
+        f"fertility {report.baseline_fertility:.3f} -> "
+        f"{report.optimized_fertility:.3f} tok/word "
+        f"({report.token_reduction_pct:.0f}% fewer tokens)"
+    )
+    print(
+        f"cost ({pricing.name}): ${report.monthly_cost_before:,.0f}/mo -> "
+        f"${report.monthly_cost_after:,.0f}/mo "
+        f"(save ${report.monthly_savings:,.0f}/mo, "
+        f"{report.savings_pct:.0f}%)"
+    )
+    print(
+        f"throughput x{report.throughput_gain_x:.2f}  "
+        f"effective-context x{report.effective_context_gain_x:.2f}  "
+        f"KV-memory -{report.kv_memory_reduction_pct:.0f}%"
+    )
+    return 0
 
 
 def _run_benchmark(args: argparse.Namespace) -> int:
@@ -167,6 +208,41 @@ def build_parser() -> argparse.ArgumentParser:
         help="Random seed for corpus sampling.",
     )
     train_parser.set_defaults(func=_run_train)
+
+    economics_parser = subparsers.add_parser(
+        "economics",
+        help="Estimate inference cost/throughput/context savings.",
+    )
+    economics_parser.add_argument(
+        "--baseline-fertility",
+        type=float,
+        required=True,
+        help="Current tokenizer tokens/word on the target language.",
+    )
+    economics_parser.add_argument(
+        "--optimized-fertility",
+        type=float,
+        required=True,
+        help="Optimized tokenizer tokens/word.",
+    )
+    economics_parser.add_argument(
+        "--pricing",
+        default="claude-sonnet",
+        help=f"Pricing preset ({', '.join(sorted(PRICING_PRESETS))}).",
+    )
+    economics_parser.add_argument(
+        "--input-words",
+        type=float,
+        default=1_000_000,
+        help="Prompt words per month (target language).",
+    )
+    economics_parser.add_argument(
+        "--output-words",
+        type=float,
+        default=300_000,
+        help="Generated words per month (target language).",
+    )
+    economics_parser.set_defaults(func=_run_economics)
 
     return parser
 

@@ -7,6 +7,7 @@ registry (Story 3.1) and the ``extend`` adapter + shared result contract
 """
 
 from tokenizer_core.adapters.base import AdapterResult
+from tokenizer_core.adapters.bundle import export_bundle, load_bundle
 from tokenizer_core.adapters.embed import (
     EmbedError,
     read_token_embeddings,
@@ -29,7 +30,9 @@ __all__ = [
     "EmbedError",
     "TargetModelEntry",
     "TokenizerFormat",
+    "export_bundle",
     "extend",
+    "load_bundle",
     "load_target_tokenizer",
     "read_token_embeddings",
     "replace",

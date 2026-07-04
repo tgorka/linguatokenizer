@@ -7,4 +7,11 @@ The canonical developer guide is [`../AGENT.md`](../AGENT.md); see also
 implementation artifacts live under [`../_bmad-output/`](../_bmad-output/), and
 per-language notes under [`../languages/`](../languages/).
 
-Add design notes, runbooks, and deeper explanations here as the project grows.
+## Guides
+
+- [`usage.md`](usage.md) — end-to-end: recipe → train → adapt → deploy.
+- [`datacenter-optimizer.md`](datacenter-optimizer.md) — the inference-cost
+  optimizer product: economics, deployment, pricing.
+- [`ei-models-integration.md`](ei-models-integration.md) — verify the tokenizer
+  penalty is gone in the ei-models experiments.
+- [`benchmark-report.md`](benchmark-report.md) — all results, consolidated.

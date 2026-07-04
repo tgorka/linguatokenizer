@@ -36,20 +36,20 @@ development_status:
   3-4-training-free-omp-embedding-init: done
   epic-3-retrospective: optional
 
-  epic-4: in-progress
-  4-1-quality-regression-gate: backlog
+  epic-4: done
+  4-1-quality-regression-gate: done
   4-2-gpt2-transplant-proof-of-concept: done
   epic-4-retrospective: optional
 
   epic-5: in-progress
   5-1-add-a-language-pipeline-hardening: backlog
-  5-2-release-readiness: backlog
+  5-2-release-readiness: done
   epic-5-retrospective: optional
 
-  epic-6: in-progress
-  6-1-inference-cost-economics: backlog
-  6-2-adapt-bundle-export: backlog
-  6-3-ei-models-integration: backlog
+  epic-6: done
+  6-1-inference-cost-economics: done
+  6-2-adapt-bundle-export: done
+  6-3-ei-models-integration: done
   epic-6-retrospective: optional
 
 action_items: []

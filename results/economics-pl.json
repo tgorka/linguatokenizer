@@ -1,0 +1,57 @@
+{
+  "workload": "1M input + 300k output Polish words/month",
+  "cases": [
+    {
+      "pricing": "claude-sonnet",
+      "baseline_fertility": 2.68,
+      "optimized_fertility": 1.42,
+      "token_reduction_pct": 47.01492537313433,
+      "monthly_cost_before": 20.1,
+      "monthly_cost_after": 10.649999999999999,
+      "monthly_savings": 9.450000000000003,
+      "savings_pct": 47.01492537313433,
+      "throughput_gain_x": 1.887323943661972,
+      "effective_context_gain_x": 1.887323943661972,
+      "kv_memory_reduction_pct": 47.01492537313433
+    },
+    {
+      "pricing": "gpt-4o",
+      "baseline_fertility": 2.68,
+      "optimized_fertility": 1.42,
+      "token_reduction_pct": 47.01492537313433,
+      "monthly_cost_before": 14.740000000000002,
+      "monthly_cost_after": 7.81,
+      "monthly_savings": 6.930000000000002,
+      "savings_pct": 47.01492537313433,
+      "throughput_gain_x": 1.887323943661972,
+      "effective_context_gain_x": 1.887323943661972,
+      "kv_memory_reduction_pct": 47.01492537313433
+    },
+    {
+      "pricing": "llama-70b-together",
+      "baseline_fertility": 2.68,
+      "optimized_fertility": 1.42,
+      "token_reduction_pct": 47.01492537313433,
+      "monthly_cost_before": 3.06592,
+      "monthly_cost_after": 1.6244800000000001,
+      "monthly_savings": 1.44144,
+      "savings_pct": 47.01492537313433,
+      "throughput_gain_x": 1.887323943661972,
+      "effective_context_gain_x": 1.887323943661972,
+      "kv_memory_reduction_pct": 47.01492537313433
+    },
+    {
+      "pricing": "selfhost-70b-h100",
+      "baseline_fertility": 2.68,
+      "optimized_fertility": 1.42,
+      "token_reduction_pct": 47.01492537313433,
+      "monthly_cost_before": 8.0132,
+      "monthly_cost_after": 4.245799999999999,
+      "monthly_savings": 3.7674000000000003,
+      "savings_pct": 47.01492537313433,
+      "throughput_gain_x": 1.887323943661972,
+      "effective_context_gain_x": 1.887323943661972,
+      "kv_memory_reduction_pct": 47.01492537313433
+    }
+  ]
+}

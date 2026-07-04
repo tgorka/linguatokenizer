@@ -47,9 +47,10 @@ extend-exclude = [
 force-exclude = true
 
 [tool.ruff.lint]
-# The word regex intentionally matches the typographic apostrophe U+2019 (’)
-# so "d’Artagnan" tokenizes as one word; allow it as a non-confusable.
-allowed-confusables = ["’"]
+# Non-ASCII characters we use intentionally in code/docstrings: the typographic
+# apostrophe U+2019 (’, in the word regex) and the multiplication sign × (in
+# "2× tokens" style docs). Allow them so ruff's confusable-char lint stays off.
+allowed-confusables = ["’", "×"]
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
@@ -123,6 +124,7 @@ include = [
     "packages/tokenizer-core/src/tokenizer_core/adapters/base.py",
     "packages/tokenizer-core/src/tokenizer_core/adapters/embed.py",
     "packages/tokenizer-core/src/tokenizer_core/adapters/replace.py",
+    "packages/tokenizer-core/src/tokenizer_core/adapters/bundle.py",
     "packages/tokenizer-core/tests/test_extend.py",
 ]
 

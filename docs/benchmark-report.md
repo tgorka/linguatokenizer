@@ -54,6 +54,27 @@ Baselines ~1.9–3.0× PL/EN penalty → extend keeps English + removes 38% of g
 excess; replace reaches ~parity. Source:
 [`../results/ei-models-penalty-pl.md`](../results/ei-models-penalty-pl.md).
 
+## 6. Multi-language (generalization)
+
+Baseline penalty landscape across the target languages (tokens/sentence vs
+English, avg of 5 baselines) — non-Latin scripts are hit hardest:
+
+| worst → | hi 4.34× · th 3.94× · he 2.93× · uk 2.79× · ar 2.54× · ru 2.50× |
+|---------|----------------------------------------------------------------|
+| milder  | lt 2.11× · pl 1.98× · cs 1.95× · de 1.68× · fr 1.66× · es/zh/pt ~1.6× |
+
+Our recipe-driven pipeline, applied end to end (32k BPE, no retraining):
+
+| Lang | Script | Reduction vs baselines | Penalty vs EN |
+|------|--------|-----------------------:|--------------:|
+| German | Latin | −32% | 1.67× → **1.14×** |
+| Russian | Cyrillic | −54% | 2.48× → **1.14×** |
+
+Every language lands at ~1.14× English, matching Polish. Source:
+[`../results/multilang-penalty.md`](../results/multilang-penalty.md),
+[`../results/multilang-ours.md`](../results/multilang-ours.md). Add a language:
+[`add-a-language.md`](add-a-language.md).
+
 ## Method notes
 
 - Fertility uses a Unicode-aware word regex + NFC normalization; token counts

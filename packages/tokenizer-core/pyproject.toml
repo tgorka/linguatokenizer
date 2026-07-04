@@ -27,6 +27,7 @@ corpora = [
 adapters = [
     "numpy>=1.26",
     "transformers>=4.44",
+    "tokenizers>=0.20",
 ]
 
 [project.scripts]

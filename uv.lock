@@ -1713,6 +1713,7 @@ dependencies = [
 adapters = [
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "numpy", version = "2.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "tokenizers" },
     { name = "transformers" },
 ]
 corpora = [
@@ -1734,6 +1735,7 @@ requires-dist = [
     { name = "pyyaml", specifier = ">=6" },
     { name = "sentencepiece", marker = "extra == 'train'", specifier = ">=0.2" },
     { name = "tiktoken", marker = "extra == 'train'", specifier = ">=0.8" },
+    { name = "tokenizers", marker = "extra == 'adapters'", specifier = ">=0.20" },
     { name = "tokenizers", marker = "extra == 'train'", specifier = ">=0.20" },
     { name = "transformers", marker = "extra == 'adapters'", specifier = ">=4.44" },
 ]

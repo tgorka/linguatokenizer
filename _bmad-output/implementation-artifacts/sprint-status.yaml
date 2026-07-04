@@ -29,11 +29,11 @@ development_status:
   2-4-technical-vs-general-routing-experiment: backlog
   epic-2-retrospective: optional
 
-  epic-3: backlog
+  epic-3: done
   3-1-target-model-registry: done
   3-2-extend-merge-adapter-compiler: done
-  3-3-replace-adapter: backlog
-  3-4-training-free-omp-embedding-init: backlog
+  3-3-replace-adapter: done
+  3-4-training-free-omp-embedding-init: done
   epic-3-retrospective: optional
 
   epic-4: backlog

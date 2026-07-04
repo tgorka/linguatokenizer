@@ -7,6 +7,11 @@ registry (Story 3.1) and the ``extend`` adapter + shared result contract
 """
 
 from tokenizer_core.adapters.base import AdapterResult
+from tokenizer_core.adapters.embed import (
+    EmbedError,
+    read_token_embeddings,
+    transplant_embeddings,
+)
 from tokenizer_core.adapters.extend import extend
 from tokenizer_core.adapters.registry import (
     REGISTRY,
@@ -15,13 +20,18 @@ from tokenizer_core.adapters.registry import (
     TokenizerFormat,
     load_target_tokenizer,
 )
+from tokenizer_core.adapters.replace import replace
 
 __all__ = [
     "REGISTRY",
     "AdapterError",
     "AdapterResult",
+    "EmbedError",
     "TargetModelEntry",
     "TokenizerFormat",
     "extend",
     "load_target_tokenizer",
+    "read_token_embeddings",
+    "replace",
+    "transplant_embeddings",
 ]

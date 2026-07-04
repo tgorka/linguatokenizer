@@ -28,12 +28,18 @@ class _FakeExtendedTokenizer:
 
 
 class _FakeBaseTokenizer:
-    """Encodes a surface string into base sub-token ids."""
+    """Encodes a surface string into base sub-token ids.
+
+    Records the ``add_special_tokens`` it was called with so tests can assert
+    FVT never lets special tokens contaminate the donor decomposition.
+    """
 
     def __init__(self, mapping: dict[str, list[int]]) -> None:
         self._mapping = mapping
+        self.add_special_calls: list[bool] = []
 
-    def encode(self, text: str) -> list[int]:
+    def encode(self, text: str, add_special_tokens: bool = True) -> list[int]:
+        self.add_special_calls.append(add_special_tokens)
         return self._mapping.get(text, [])
 
 
@@ -109,6 +115,20 @@ def test_replace_layout_base_vocab_zero_fvt_from_full_donor() -> None:
     assert out.shape == (2, 3)  # nothing preserved, both rows are new
     assert np.isfinite(out).all()
     assert np.allclose(out[0], base_emb[[0, 1]].mean(axis=0))
+
+
+def test_fvt_never_adds_special_tokens_to_donor_decomposition() -> None:
+    # BOS/EOS from the base tokenizer must not be averaged into new-token inits
+    # (they would for LLaMA/Mistral/Qwen/Gemma with the encode default).
+    np = pytest.importorskip("numpy")
+    base_emb = np.arange(12, dtype=np.float32).reshape(4, 3)
+    result = _result([" kot"], base_vocab=4)
+    base_tok = _FakeBaseTokenizer({" kot": [0, 1]})
+
+    transplant_embeddings(result, base_emb, base_tok, method="fvt")
+
+    assert base_tok.add_special_calls  # was called
+    assert all(v is False for v in base_tok.add_special_calls)
 
 
 def test_too_few_base_rows_raises() -> None:

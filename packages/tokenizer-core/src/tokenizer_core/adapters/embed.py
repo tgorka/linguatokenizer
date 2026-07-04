@@ -102,10 +102,15 @@ def fvt_embedding(
     The mean of the base model's embeddings of the base sub-tokens ``surface``
     encodes to; ``fallback`` (typically the global mean embedding) when the
     base tokenizer yields no ids.
+
+    ``add_special_tokens=False`` is required: most model families (LLaMA,
+    Mistral, Qwen, Gemma, ...) prepend a BOS (and sometimes append EOS) by
+    default, which would average those special-token embeddings into every new
+    token's init and corrupt it. FVT wants only the surface's real sub-pieces.
     """
     import numpy as np  # noqa: PLC0415
 
-    ids = base_tokenizer.encode(surface)
+    ids = base_tokenizer.encode(surface, add_special_tokens=False)
     ids = [i for i in ids if 0 <= i < base_embeddings.shape[0]]
     if not ids:
         return fallback

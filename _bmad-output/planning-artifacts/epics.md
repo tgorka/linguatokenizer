@@ -204,3 +204,45 @@ Acceptance Criteria:
 1. README/AGENT/CLAUDE accurate; LICENSE + corpus provenance documented.
 2. CI green; next-language backlog (fr, zh, cs, ru, uk, lt, es, de, hi, he, ar,
    th, pt) listed as epics.
+
+---
+
+## Epic 6: Product packages — datacenter optimizer + ei-models integration
+
+Turn the tokenizer + adapters into things a user can actually consume: a
+datacenter inference-cost optimizer and a drop-in for the ei-models experiments
+to verify the tokenizer penalty is gone.
+
+### Story 6.1: Inference-cost economics
+
+As a datacenter operator, I want to quantify the cost/throughput/context wins of
+a lower-fertility tokenizer, so that I can decide whether to adopt it.
+
+Acceptance Criteria:
+1. `tokenizer_core.economics` turns (baseline fertility, optimized fertility,
+   workload, pricing) into token-reduction %, $ savings, throughput gain, and
+   effective-context multiplier, grounded in cited token economics.
+2. A committed Polish savings report + CLI `tokenizer economics`.
+3. Pure-python, unit-tested; no model required.
+
+### Story 6.2: Adapt bundle export
+
+As a serving engineer, I want a single portable artifact bundle, so that I can
+load the adapted tokenizer + embeddings into a serving stack.
+
+Acceptance Criteria:
+1. `export_bundle` writes tokenizer.json + the transplanted embedding matrix
+   (safetensors) + a manifest (base model, method, vocab boundary, fertility).
+2. Round-trip loadable; documented layout. Large matrices go to the data plane.
+
+### Story 6.3: ei-models integration
+
+As an ei-models researcher, I want a portable penalty report, so that I can
+re-run the PL-vs-EN token spike with our tokenizer and confirm the ~2× penalty
+is removed.
+
+Acceptance Criteria:
+1. `tokenizer_core.integrations.ei_models` reproduces the fertility/penalty
+   report for any tokenizer over aligned pairs, matching ei-models' framing.
+2. A standalone script + usage doc the ei-models repo can call.
+3. A committed before/after report: baseline vs our tokenizer on Polish.

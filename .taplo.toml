@@ -1,0 +1,14 @@
+# Taplo config — keeps the human-readable formatting in pyproject.toml.
+# Reference: https://taplo.tamasfe.dev/configuration/file.html
+
+include = ["**/*.toml"]
+
+[formatting]
+# Don't collapse multi-line arrays back to one line or vice-versa.
+array_auto_collapse = false
+array_auto_expand = false
+# Match the 4-space indent already used throughout pyproject.toml.
+indent_string = "    "
+# Keep trailing-comment alignment as authored.
+align_comments = true
+align_entries = false

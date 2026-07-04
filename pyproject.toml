@@ -1,0 +1,103 @@
+[project]
+name = "tokenizer"
+version = "0.0.0"
+description = "Token-efficient, morphology-aware tokenizers for under-served languages (Polish first) plus adapters that graft them onto existing LLM tokenizers."
+requires-python = ">=3.11"
+dependencies = []
+
+# Workspace root is not itself a publishable package.
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.8",
+    "pytest>=8",
+    "pytest-regressions>=2.5",
+    "pyyaml>=6",
+    # pandas backs pytest-regressions' num_regression golden fixture.
+    "pandas>=2",
+    "ty",
+]
+
+# -----------------------------------------------------------------------------
+# Ruff — Google Python Style Guide
+#   https://google.github.io/styleguide/pyguide.html
+# -----------------------------------------------------------------------------
+[tool.ruff]
+line-length = 80
+indent-width = 4
+target-version = "py311"
+# Vendored/generated trees we do not own: BMad tooling, the bmad-loop
+# orchestrator's hook, installed skills, and BMad output artifacts.
+extend-exclude = [
+    ".venv",
+    "dist",
+    "build",
+    "_bmad",
+    "_bmad-output",
+    ".bmad-loop",
+    ".claude",
+    "skills",
+]
+# Apply the excludes even when pre-commit passes file paths explicitly.
+force-exclude = true
+
+[tool.ruff.lint]
+# The word regex intentionally matches the typographic apostrophe U+2019 (’)
+# so "d’Artagnan" tokenizes as one word; allow it as a non-confusable.
+allowed-confusables = ["’"]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "SIM", # flake8-simplify
+    "RUF", # ruff-specific
+    "N",   # pep8-naming
+    "D",   # pydocstyle (Google convention)
+    "PL",  # pylint
+    "PTH", # use pathlib
+    "C4",  # comprehensions
+]
+ignore = [
+    "E501",    # line length handled by formatter
+    "D100",    # missing docstring in public module
+    "D104",    # missing docstring in public package
+    "PLR2004", # magic value comparisons
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["D", "PLR2004"]
+"**/test_*.py" = ["D", "PLR2004"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.isort]
+known-first-party = ["tokenizer_core"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+# -----------------------------------------------------------------------------
+# pytest
+# -----------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["packages"]
+python_files = ["test_*.py", "*_test.py"]
+addopts = ["-ra", "--strict-markers", "--strict-config"]
+
+# -----------------------------------------------------------------------------
+# ty — Astral's type checker (preview)
+#   https://github.com/astral-sh/ty
+# -----------------------------------------------------------------------------
+[tool.ty.src]
+include = ["packages"]

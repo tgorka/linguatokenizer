@@ -1,0 +1,104 @@
+version: "3"
+
+# tokenizer — task runner for the uv workspace.
+# Install go-task: https://taskfile.dev/installation/  (e.g. `brew install go-task`)
+#
+# Root-level tasks run workspace-wide (every uv member at once). Runtime tasks
+# that need secrets are wrapped in scripts/op-run.sh so credentials come from
+# the neuraffica 1Password vault (op.env). See AGENT.md.
+
+vars:
+  PY: uv run
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+
+  setup:
+    desc: Sync the uv workspace (creates .venv, installs all members + dev deps)
+    cmds:
+      - uv sync --all-packages
+
+  setup:all:
+    desc: Sync the workspace with every optional extra (train/corpora/adapters)
+    cmds:
+      - uv sync --all-packages --all-extras
+
+  bmad:skills:
+    desc: Link the BMM dev/review skills the bmad-loop orchestrator drives
+    cmds:
+      - bash scripts/setup-bmad-skills.sh
+
+  # --- Secrets (1Password) ---------------------------------------------------
+  secrets:check:
+    desc: Resolve op.env against the neuraffica 1Password vault (keys only, values masked)
+    cmds:
+      - >
+        op run --env-file=op.env --
+        bash -c 'for k in $(grep -vE "^[[:space:]]*#|^[[:space:]]*$" op.env | cut -d= -f1); do
+        if [ -n "${!k}" ]; then echo "  $k = ✓ resolved"; else echo "  $k = ✗ missing"; fi; done'
+
+  secrets:run:
+    desc: 'Run any command with 1Password secrets injected — `task secrets:run -- uv run python foo.py`'
+    cmds:
+      - "scripts/op-run.sh {{.CLI_ARGS}}"
+
+  # --- Remote GPU (only for the optional gpt2 PoC retrain) -------------------
+  gpu:run:
+    desc: 'Run a command on the Hyperstack GPU VM — `task gpu:run -- uv run python -m ...`'
+    cmds:
+      - "scripts/op-run.sh scripts/gpu-run.sh -- {{.CLI_ARGS}}"
+
+  gpu:dry-run:
+    desc: 'Print the remote rsync/ssh plan without executing — `task gpu:dry-run -- <cmd>`'
+    cmds:
+      - "scripts/op-run.sh scripts/gpu-run.sh --dry-run -- {{.CLI_ARGS}}"
+
+  # --- Quality gates ---------------------------------------------------------
+  lint:
+    desc: Lint with ruff
+    cmds:
+      - "{{.PY}} ruff check ."
+
+  fmt:
+    desc: Format with ruff (and apply safe lint fixes)
+    cmds:
+      - "{{.PY}} ruff format ."
+      - "{{.PY}} ruff check --fix ."
+
+  test:
+    desc: Run pytest across the workspace
+    cmds:
+      - "{{.PY}} pytest"
+
+  typecheck:
+    desc: Static type check with ty (Astral)
+    cmds:
+      - "{{.PY}} ty check"
+
+  check:
+    desc: Run all local checks (lint + format check + types + tests)
+    cmds:
+      - "{{.PY}} ruff check ."
+      - "{{.PY}} ruff format --check ."
+      - "{{.PY}} ty check"
+      - "{{.PY}} pytest"
+
+  precommit:install:
+    desc: Install prek hooks into .git/hooks
+    cmds:
+      - uvx prek install --install-hooks
+
+  precommit:
+    desc: Run all pre-commit hooks via prek against every file
+    cmds:
+      - uvx prek run --all-files --show-diff-on-failure
+
+  clean:
+    desc: Remove caches, build artifacts, and the local venv
+    cmds:
+      - rm -rf .venv .ruff_cache .pytest_cache .mypy_cache dist build
+      - find . -type d -name __pycache__ -prune -exec rm -rf {} +
+      - find . -type d -name "*.egg-info" -prune -exec rm -rf {} +

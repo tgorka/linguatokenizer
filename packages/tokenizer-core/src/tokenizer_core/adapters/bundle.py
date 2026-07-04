@@ -60,14 +60,16 @@ def export_bundle(  # noqa: PLR0913  (each field is real bundle provenance)
         ValueError: If ``embeddings`` row count doesn't match the tokenizer's
             vocab size.
     """
-    from safetensors.numpy import save_file  # noqa: PLC0415
-
+    # Validate before importing the heavy dep so a shape mismatch fails fast
+    # (and without needing the safetensors extra installed).
     vocab_size = result.tokenizer.get_vocab_size()
     if embeddings.shape[0] != vocab_size:
         raise ValueError(
             f"embeddings has {embeddings.shape[0]} rows but tokenizer vocab "
             f"is {vocab_size}"
         )
+
+    from safetensors.numpy import save_file  # noqa: PLC0415
 
     dest = Path(out_dir)
     dest.mkdir(parents=True, exist_ok=True)

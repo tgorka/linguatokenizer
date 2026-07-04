@@ -47,10 +47,11 @@ extend-exclude = [
 force-exclude = true
 
 [tool.ruff.lint]
-# Non-ASCII characters we use intentionally in code/docstrings: the typographic
-# apostrophe U+2019 (’, in the word regex) and the multiplication sign × (in
-# "2× tokens" style docs). Allow them so ruff's confusable-char lint stays off.
-allowed-confusables = ["’", "×"]
+# Non-ASCII characters we use intentionally in code/docstrings/reports: the
+# typographic apostrophe U+2019 (’, in the word regex), the multiplication sign
+# × and the minus sign − (in "2× / −47%" style figures). Allow them so ruff's
+# confusable-char lint stays off.
+allowed-confusables = ["’", "×", "−"]
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings

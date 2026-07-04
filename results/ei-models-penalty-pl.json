@@ -1,0 +1,47 @@
+{
+  "eval": "FLORES-200 devtest pol_Latn vs eng_Latn (1012 aligned)",
+  "baselines": {
+    "gpt2": {
+      "target_fertility": 3.713393085787452,
+      "english_fertility": 1.2302793194431807,
+      "penalty_x": 3.018333338699149
+    },
+    "mistralai/Mistral-7B-v0.1": {
+      "target_fertility": 2.91887323943662,
+      "english_fertility": 1.3646165044127012,
+      "penalty_x": 2.1389696152713866
+    },
+    "meta-llama/Llama-3.1-8B": {
+      "target_fertility": 2.631037131882202,
+      "english_fertility": 1.236056773723956,
+      "penalty_x": 2.1285730460062036
+    },
+    "Qwen/Qwen2.5-7B": {
+      "target_fertility": 2.496594110115237,
+      "english_fertility": 1.256528068419616,
+      "penalty_x": 1.9868987990497498
+    },
+    "deepseek-ai/DeepSeek-V3": {
+      "target_fertility": 2.332496798975672,
+      "english_fertility": 1.2301428441452098,
+      "penalty_x": 1.8961186581518148
+    }
+  },
+  "extended_gpt2": {
+    "baseline": {
+      "target_fertility": 3.713393085787452,
+      "english_fertility": 1.2302793194431807,
+      "penalty_x": 3.018333338699149
+    },
+    "optimized": {
+      "target_fertility": 2.7729065300896285,
+      "english_fertility": 1.227868255845692,
+      "penalty_x": 2.2583094862891415
+    },
+    "baseline_penalty_x": 3.018333338699149,
+    "optimized_penalty_x": 2.2583094862891415,
+    "penalty_removed_pct": 37.65601240575336
+  },
+  "standalone_pl_bpe_32k_fertility": 1.561,
+  "note": "penalty_x = PL tok/word / EN tok/word for the SAME tokenizer. Extended gpt2 keeps English intact and lowers the Polish penalty; the standalone/replace tokenizer reaches 1.56 tok/word on Polish (vs a good English tokenizer's ~1.25 EN)."
+}

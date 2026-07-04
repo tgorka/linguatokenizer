@@ -63,7 +63,20 @@ For each target model (Mistral 2/3/4, Llama, GLM, Nemotron, Qwen, Kimi,
 DeepSeek, MiMo, GPT-2, Gemma, …) an adapter either **extends/merges** the
 Polish vocabulary into the model's existing tokenizer or **replaces** it, then
 initializes embeddings for new tokens with a quality-preserving method
-(training-free OMP where possible; gpt2 is the from-scratch retrain PoC).
+(training-free FVT; gpt2 is the from-scratch retrain PoC). Validated on real
+gpt2: extend keeps English 99.8% token-identical while cutting Polish tokens
+25%; replace reaches full 1.56 tok/word Polish. `export_bundle` writes a
+deployable `tokenizer.json` + `embeddings.safetensors` + `manifest.json`.
+
+## Products
+
+- **Datacenter inference-cost optimizer** — quantify the cost/throughput/context
+  wins of a lower-fertility tokenizer and deploy it.
+  `tokenizer economics …`; see [`docs/datacenter-optimizer.md`](docs/datacenter-optimizer.md).
+- **ei-models integration** — a drop-in to re-run the PL-vs-EN token spike with
+  our tokenizer and confirm the ~2× penalty is gone.
+  `tokenizer_core.integrations.ei_models`; see
+  [`docs/ei-models-integration.md`](docs/ei-models-integration.md).
 
 ## Roadmap
 

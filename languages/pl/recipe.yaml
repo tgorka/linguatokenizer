@@ -16,33 +16,23 @@ language:
 # tokenizers over-segment it (~1.5-3.2 tokens/word vs ~1.3 for English), which
 # is the root of the "Polish costs ~2x the tokens" penalty this repo targets.
 
+# Training text is pre-staged into the data plane by scripts/stage_pl_corpus.py
+# (bounded, reproducible, ungated) and referenced here as local files, so
+# training is fast/offline and the large corpora stay off git. OSCAR is gated
+# and mc4/cc100 use dead dataset scripts, so we use FineWeb-2 + Wikipedia.
 train_corpora:
-  - source: hf
-    id: oscar-corpus/OSCAR-2301
-    config: pl
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/pl/train/fineweb2.txt
+    config: pol_Latn # HuggingFaceFW/fineweb-2, high-quality filtered web
     split: train
-    weight: 0.5
+    weight: 0.7
     domain: web
-  - source: hf
-    id: allenai/c4
-    config: pl
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/pl/train/wiki.txt
+    config: 20231101.pl # wikimedia/wikipedia, clean encyclopedic text
     split: train
-    weight: 0.2
-    domain: web
-  - source: hf
-    id: wikimedia/wikipedia
-    config: 20231101.pl
-    split: train
-    weight: 0.2
+    weight: 0.3
     domain: wiki
-  # Technical/code-adjacent Polish (docs, StackExchange-pl, legal) to support a
-  # possible technical-vs-general routing experiment.
-  - source: hf
-    id: speakleash/pl-legal-texts # placeholder id; confirm during acquisition
-    config: default
-    split: train
-    weight: 0.1
-    domain: legal
 
 # Held out for benchmarking fertility + quality. FLORES-200 gives sentence-
 # aligned PL/EN pairs, so fertility is measured on IDENTICAL content — the

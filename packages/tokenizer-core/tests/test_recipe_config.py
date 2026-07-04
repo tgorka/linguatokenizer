@@ -31,14 +31,13 @@ def test_load_polish_recipe():
     assert recipe.language.name == "Polish"
     assert recipe.language.scripts == ["Latn"]
 
-    assert len(recipe.train_corpora) == 4
+    assert len(recipe.train_corpora) == 2
     first = recipe.train_corpora[0]
     assert isinstance(first, CorpusSpec)
-    assert first.source == "hf"
-    assert first.id == "oscar-corpus/OSCAR-2301"
-    assert first.config == "pl"
+    assert first.source == "local"
+    assert first.id.endswith("/pl/train/fineweb2.txt")
     assert first.split == "train"
-    assert first.weight == 0.5
+    assert first.weight == 0.7
     assert first.domain == "web"
 
     assert len(recipe.eval_corpora) == 3

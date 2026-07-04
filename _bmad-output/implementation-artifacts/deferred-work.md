@@ -54,3 +54,11 @@ that surfaced them. Append-only; each entry names its source spec.
 - source_spec: `spec-1-2-corpus-acquisition-to-the-nextcloud-data-plane.md`
   summary: `sample_corpora`'s manifest write (`manifest_path.write_text(...)`) is not atomic and not lock-protected, so a crash mid-write or two concurrent `sample_corpora` calls for the same `language_code` can leave `manifest.json` truncated or interleaved.
   evidence: Distinct from the already-deferred `url`-cache non-atomic write: this is the final provenance manifest itself, which downstream training/benchmarking treats as authoritative. A write-to-temp-then-`os.replace()` pattern (plus documenting that concurrent same-language_code runs are unsupported) would close this before real multi-source acquisition runs land in later stories.
+
+- source_spec: `spec-1-3-fertility-and-compression-metrics.md`
+  summary: `aligned_fertility` fully materializes both `target_corpus`/`english_corpus` iterables into lists (to compare lengths before encoding), departing from `fertility()`'s streaming, one-pass-over-an-iterable design.
+  evidence: Fine today since the only aligned-eval source in the recipe is FLORES devtest (~1000 sentence pairs), but if a future recipe or Story 1.4's `compare.py` feeds a much larger sentence-aligned corpus through this helper, the full double materialization would compete with the project's Nextcloud-for-large-data convention. Revisit if aligned corpora grow beyond eval-set scale.
+
+- source_spec: `spec-1-3-fertility-and-compression-metrics.md`
+  summary: `write_report` has no typed-error guard for filesystem edge cases (`path` pointing to an existing directory, a parent path component that is itself a file, or concurrent writers) and is not atomic, unlike `corpora/sampling.py`'s manifest write which was reviewed for the same class of concern.
+  evidence: A misconfigured `path` (e.g. accidentally passing a directory) raises a raw `IsADirectoryError`/`NotADirectoryError` instead of a clear, module-typed error, and two concurrent writers to the same `results/*.json` path could interleave (same non-atomicity class already deferred for `sample_corpora`'s manifest write). The `benchmark` module has no typed exception (unlike `corpora.SourceError`) to standardize on yet, so fixing this cleanly is a slightly larger change than a one-line patch.

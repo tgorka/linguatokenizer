@@ -16,10 +16,12 @@ the base install.
 
 from __future__ import annotations
 
+import json
 import re
 import unicodedata
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Literal, Protocol, runtime_checkable
 
 NormalizationForm = Literal["NFC", "NFD", "NFKC", "NFKD"]
@@ -155,3 +157,110 @@ def fertility(
         chars_per_token=(n_chars / n_tokens) if n_tokens else 0.0,
         bytes_per_token=(n_bytes / n_tokens) if n_tokens else 0.0,
     )
+
+
+@dataclass(frozen=True)
+class AlignedFertilityReport:
+    """Paired fertility scores for sentence-aligned target/English corpora.
+
+    Attributes:
+        target: :class:`FertilityReport` for the target-language corpus.
+        english: :class:`FertilityReport` for the aligned English corpus.
+        fertility_vs_english: ``target.fertility / english.fertility``; the
+            "target language costs Nx English" ratio (the North Star
+            comparison). ``0.0`` whenever either side's ``.fertility`` is
+            ``0`` (empty corpus or no words), mirroring
+            :class:`FertilityReport`'s zero-denominator convention -- this
+            value alone can't distinguish "target is empty" from "english is
+            empty"; inspect ``target``/``english`` directly to tell them
+            apart.
+    """
+
+    target: FertilityReport
+    english: FertilityReport
+    fertility_vs_english: float
+
+    def as_dict(self) -> dict[str, object]:
+        """Return the report as a plain JSON-serializable dict."""
+        return {
+            "target": self.target.as_dict(),
+            "english": self.english.as_dict(),
+            "fertility_vs_english": self.fertility_vs_english,
+        }
+
+
+def aligned_fertility(
+    encoder: Encoder | EncodeFn,
+    target_corpus: Iterable[str],
+    english_corpus: Iterable[str],
+    *,
+    normalize: NormalizationForm = "NFC",
+) -> AlignedFertilityReport:
+    """Score a tokenizer over two sentence-aligned corpora and their ratio.
+
+    Args:
+        encoder: A tokenizer exposing ``encode`` or a plain ``str -> tokens``
+            callable, scored identically on both corpora.
+        target_corpus: Iterable of documents in the target language.
+        english_corpus: Iterable of documents in English, index-aligned with
+            ``target_corpus`` (same sentence, same position).
+        normalize: Unicode normalization form for the character count.
+
+    Returns:
+        An :class:`AlignedFertilityReport` with both sides' fertility
+        reports and the ``fertility_vs_english`` ratio.
+
+    Raises:
+        ValueError: If the two corpora have different lengths, naming both
+            counts. Both corpora are fully materialized and their lengths
+            compared before either side is encoded, so a length mismatch is
+            caught before any tokenizer calls happen. This only checks
+            length -- it cannot detect two same-length corpora that are not
+            actually sentence-for-sentence aligned; that guarantee must come
+            from the corpus source (e.g. FLORES's paired splits).
+    """
+    target_docs = list(target_corpus)
+    english_docs = list(english_corpus)
+    if len(target_docs) != len(english_docs):
+        raise ValueError(
+            "aligned_fertility requires equal-length corpora, got "
+            f"target={len(target_docs)} docs, english={len(english_docs)} docs"
+        )
+
+    target_report = fertility(encoder, target_docs, normalize=normalize)
+    english_report = fertility(encoder, english_docs, normalize=normalize)
+    fertility_vs_english = (
+        target_report.fertility / english_report.fertility
+        if english_report.fertility
+        else 0.0
+    )
+
+    return AlignedFertilityReport(
+        target=target_report,
+        english=english_report,
+        fertility_vs_english=fertility_vs_english,
+    )
+
+
+def write_report(
+    report: FertilityReport | AlignedFertilityReport,
+    path: str | Path,
+) -> Path:
+    """Serialize ``report`` to pretty-printed JSON at ``path``.
+
+    Args:
+        report: A :class:`FertilityReport` or :class:`AlignedFertilityReport`.
+        path: Destination file path. Parent directories are created if they
+            do not already exist.
+
+    Returns:
+        ``path`` as a :class:`Path` (not resolved to an absolute/canonical
+        form -- a relative input stays relative).
+    """
+    dest_path = Path(path)
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    dest_path.write_text(
+        json.dumps(report.as_dict(), indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    return dest_path

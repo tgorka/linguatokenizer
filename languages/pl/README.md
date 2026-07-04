@@ -29,3 +29,26 @@ the **training-free** transplant path (OMP, arXiv:2506.06607) where possible.
    quality-preserving embedding init; gpt2 is the retrain proof-of-concept.
 
 Results land in `results/` and are summarized here as they come in.
+
+## Baseline penalty (Epic 1 — real data)
+
+Measured with `task benchmark:pl` on the 1012 sentence-aligned FLORES-200
+devtest pairs (`task data:flores` fetches the ungated set). Fertility =
+tokens/word; `pl/en` is the Polish token premium on identical content —
+reproducing the ei-models ~2× finding, and gpt2's ~3×.
+
+| Baseline | PL tok/word | EN tok/word | PL/EN |
+|----------|------------:|------------:|------:|
+| gpt2 | 3.713 | 1.230 | **3.02** |
+| mistralai/Mistral-7B-v0.1 | 2.971 | 1.411 | 2.11 |
+| speakleash/Bielik-11B-v2.3-Instruct | 2.971 | 1.411 | 2.11 |
+| meta-llama/Llama-3.1-8B | 2.683 | 1.282 | 2.09 |
+| Qwen/Qwen2.5-7B | 2.497 | 1.257 | 1.99 |
+| deepseek-ai/DeepSeek-V3 | 2.332 | 1.230 | **1.90** |
+
+Gated (skipped unless the vault `HF_TOKEN` account accepts terms):
+`google/gemma-2-9b`, `speakleash/Bielik-11B-v3.0-Instruct` (the APT4 reference,
+reported at ~1.62 tok/word in arXiv:2604.10799 — the target to beat). Full
+data in `results/baselines-pl-en.json`.
+
+**Target:** a trained Polish tokenizer at **PL/EN ≤ 1.0** (Epic 2).

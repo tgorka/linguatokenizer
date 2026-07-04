@@ -349,3 +349,25 @@ def test_local_no_data_dir_and_no_env_still_resolves(
 
     assert skip_reason is None
     assert list(documents) == ["a"]
+
+
+def test_local_source_expands_env_vars_in_path(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    # Committed recipes reference the data plane as ${TOKENIZER_DATA_DIR}/...;
+    # a local source must expand env vars (and ~) before opening the file.
+    data_file = tmp_path / "flores" / "pol_Latn.devtest"
+    data_file.parent.mkdir(parents=True)
+    data_file.write_text("zdanie pierwsze\nzdanie drugie\n", encoding="utf-8")
+    monkeypatch.setenv("TOKENIZER_DATA_DIR", str(tmp_path))
+
+    spec = CorpusSpec(
+        source="local",
+        id="${TOKENIZER_DATA_DIR}/flores/pol_Latn.devtest",
+        config="pol_Latn",
+        split="devtest",
+    )
+    documents, skip_reason = resolve_source(spec)
+
+    assert skip_reason is None
+    assert list(documents) == ["zdanie pierwsze", "zdanie drugie"]

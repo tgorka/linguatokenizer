@@ -105,7 +105,7 @@ def _resolve_hf(spec: CorpusSpec) -> tuple[Iterator[str], str | None]:
             f"hf source {spec.id!r} has no split configured (ambiguous)"
         )
 
-    import datasets  # ty: ignore[unresolved-import]  # noqa: PLC0415
+    import datasets  # noqa: PLC0415
 
     try:
         ds: Iterable[Mapping[str, Any]] = datasets.load_dataset(
@@ -192,8 +192,13 @@ def _resolve_url(spec: CorpusSpec, data_dir: Path) -> Iterator[str]:
 
 
 def _resolve_local(spec: CorpusSpec) -> Iterator[str]:
-    """Stream non-empty lines directly from a ``local`` file path."""
-    path = Path(spec.id)
+    """Stream non-empty lines directly from a ``local`` file path.
+
+    ``~`` and environment variables (e.g. ``${TOKENIZER_DATA_DIR}``) in the
+    path are expanded first, so committed recipes can reference the data plane
+    portably instead of hard-coding an absolute machine path.
+    """
+    path = Path(os.path.expandvars(spec.id)).expanduser()
     if not path.is_file():
         raise SourceError(f"local source path not found: {path}")
     return _iter_lines(path)

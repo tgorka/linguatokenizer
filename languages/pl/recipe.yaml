@@ -47,10 +47,20 @@ train_corpora:
 # Held out for benchmarking fertility + quality. FLORES-200 gives sentence-
 # aligned PL/EN pairs, so fertility is measured on IDENTICAL content — the
 # fair way to state "Polish costs N tokens for the same sentence as English".
+# The HF `facebook/flores` dataset is gated; we use the public, ungated
+# FLORES-200 tarball (CC-BY-SA-4.0) fetched by `scripts/fetch-flores.sh` into
+# the data plane, referenced here as local aligned files (`config` names the
+# FLORES side: `pol_Latn` = target, `eng_Latn` = English twin).
 eval_corpora:
-  - source: hf
-    id: facebook/flores # dev/devtest, pl vs en aligned
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/flores200/flores200_dataset/devtest/pol_Latn.devtest
     config: pol_Latn
+    split: devtest
+    weight: 1.0
+    domain: general
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/flores200/flores200_dataset/devtest/eng_Latn.devtest
+    config: eng_Latn
     split: devtest
     weight: 1.0
     domain: general
@@ -84,11 +94,16 @@ targets:
   # Transplanted onto a model, downstream quality must not drop more than this.
   max_quality_drop_pct: 1.0
 
-# The universal tokenizers we want to beat on Polish fertility.
+# The universal tokenizers we want to beat on Polish fertility. Gated repos
+# (e.g. google/gemma-2-9b, speakleash/Bielik-11B-v3.0-Instruct) are recorded as
+# skipped BaselineOutcomes unless the vault HF_TOKEN's account has accepted
+# their terms — the benchmark never aborts on a gated/unavailable baseline.
 baselines:
   - gpt2
   - meta-llama/Llama-3.1-8B
   - mistralai/Mistral-7B-v0.1
   - Qwen/Qwen2.5-7B
-  - google/gemma-2-9b
-  - speakleash/Bielik-11B-v3 # the Polish-optimized reference (APT4 tokenizer)
+  - deepseek-ai/DeepSeek-V3
+  - speakleash/Bielik-11B-v2.3-Instruct # Polish-tuned (Mistral-extended tokenizer)
+  - google/gemma-2-9b # gated -> skipped unless terms accepted
+  - speakleash/Bielik-11B-v3.0-Instruct # Polish-optimized APT4 reference; gated

@@ -31,6 +31,16 @@ tasks:
     cmds:
       - bash scripts/setup-bmad-skills.sh
 
+  data:flores:
+    desc: Fetch the ungated FLORES-200 aligned eval set into the data plane
+    cmds:
+      - scripts/op-run.sh bash scripts/fetch-flores.sh
+
+  benchmark:pl:
+    desc: Score baseline tokenizers on aligned FLORES pl/en fertility
+    cmds:
+      - scripts/op-run.sh uv run tokenizer benchmark --recipe languages/pl/recipe.yaml
+
   # --- Secrets (1Password) ---------------------------------------------------
   secrets:check:
     desc: Resolve op.env against the neuraffica 1Password vault (keys only, values masked)

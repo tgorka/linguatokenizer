@@ -41,8 +41,11 @@ def test_load_polish_recipe():
     assert first.weight == 0.5
     assert first.domain == "web"
 
-    assert len(recipe.eval_corpora) == 2
-    assert recipe.eval_corpora[0].id == "facebook/flores"
+    assert len(recipe.eval_corpora) == 3
+    # Aligned FLORES pair as ungated local files (config names the FLORES side).
+    assert recipe.eval_corpora[0].source == "local"
+    assert recipe.eval_corpora[0].config == "pol_Latn"
+    assert recipe.eval_corpora[1].config == "eng_Latn"
 
     assert len(recipe.candidates) == 3
     candidate = recipe.candidates[0]
@@ -59,7 +62,7 @@ def test_load_polish_recipe():
     assert recipe.targets.max_quality_drop_pct == 1.0
 
     assert "gpt2" in recipe.baselines
-    assert "speakleash/Bielik-11B-v3" in recipe.baselines
+    assert "speakleash/Bielik-11B-v3.0-Instruct" in recipe.baselines
 
 
 def test_load_template_recipe():

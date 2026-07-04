@@ -101,3 +101,16 @@ addopts = ["-ra", "--strict-markers", "--strict-config"]
 # -----------------------------------------------------------------------------
 [tool.ty.src]
 include = ["packages"]
+
+# Modules that lazy-import an optional extra (kept out of the base install)
+# behind a runtime guard trip ty's unresolved-import when the extra is not
+# installed (as in CI's `uv sync --all-packages`, no extras). Suppress it for
+# exactly those files so the check is stable whether or not extras are present.
+[[tool.ty.overrides]]
+include = [
+    "packages/tokenizer-core/src/tokenizer_core/corpora/sources.py",
+    "packages/tokenizer-core/src/tokenizer_core/benchmark/compare.py",
+]
+
+[tool.ty.overrides.rules]
+unresolved-import = "ignore"

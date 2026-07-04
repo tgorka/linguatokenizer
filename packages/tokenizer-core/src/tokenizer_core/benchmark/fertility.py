@@ -41,6 +41,21 @@ class Encoder(Protocol):
         ...
 
 
+@runtime_checkable
+class Reportable(Protocol):
+    """Minimal structural type for anything ``write_report`` can serialize.
+
+    Both :class:`FertilityReport`/:class:`AlignedFertilityReport` (this
+    module) and :class:`~tokenizer_core.benchmark.compare.ComparisonReport`
+    (Story 1.4) satisfy this protocol, so ``write_report`` needs no
+    per-report-type branching.
+    """
+
+    def as_dict(self) -> dict[str, Any]:
+        """Return the report as a plain JSON-serializable dict."""
+        ...
+
+
 EncodeFn = Callable[[str], Any]
 
 
@@ -243,13 +258,15 @@ def aligned_fertility(
 
 
 def write_report(
-    report: FertilityReport | AlignedFertilityReport,
+    report: Reportable,
     path: str | Path,
 ) -> Path:
     """Serialize ``report`` to pretty-printed JSON at ``path``.
 
     Args:
-        report: A :class:`FertilityReport` or :class:`AlignedFertilityReport`.
+        report: Any :class:`Reportable` (e.g. a :class:`FertilityReport`,
+            :class:`AlignedFertilityReport`, or
+            :class:`~tokenizer_core.benchmark.compare.ComparisonReport`).
         path: Destination file path. Parent directories are created if they
             do not already exist.
 

@@ -1,0 +1,57 @@
+{
+  "eval": "FLORES-200 devtest pol_Latn (1012 sentences)",
+  "our_tokenizer": "pl-bpe-32k",
+  "note": "reduction % = cost-savings % (cost is linear in tokens, input + output legs). encode speed is CPU tokenizer throughput, not inference latency.",
+  "models": {
+    "gpt2": {
+      "hf_id": "gpt2",
+      "stock_tok_per_sent": 71.64,
+      "replace_tok_per_sent": 30.12,
+      "replace_reduction_pct": 58.0,
+      "stock_tokens_per_sec": 1546411,
+      "ours_tokens_per_sec": 1103854,
+      "extend_tok_per_sent": 53.5,
+      "extend_reduction_pct": 25.3
+    },
+    "llama": {
+      "hf_id": "meta-llama/Llama-3.1-8B",
+      "stock_tok_per_sent": 50.76,
+      "replace_tok_per_sent": 30.12,
+      "replace_reduction_pct": 40.7,
+      "stock_tokens_per_sec": 517070,
+      "ours_tokens_per_sec": 1103854,
+      "extend_tok_per_sent": 36.01,
+      "extend_reduction_pct": 29.1
+    },
+    "mistral": {
+      "hf_id": "mistralai/Mistral-7B-v0.1",
+      "stock_tok_per_sent": 56.32,
+      "replace_tok_per_sent": 30.12,
+      "replace_reduction_pct": 46.5,
+      "stock_tokens_per_sec": 2064656,
+      "ours_tokens_per_sec": 1103854,
+      "extend_tok_per_sent": null,
+      "extend_note": "not supported: extend only supports hf_tokenizers-format targets, but famil"
+    },
+    "qwen": {
+      "hf_id": "Qwen/Qwen2.5-7B",
+      "stock_tok_per_sent": 48.17,
+      "replace_tok_per_sent": 30.12,
+      "replace_reduction_pct": 37.5,
+      "stock_tokens_per_sec": 921634,
+      "ours_tokens_per_sec": 1103854,
+      "extend_tok_per_sent": 44.04,
+      "extend_reduction_pct": 8.6
+    },
+    "deepseek": {
+      "hf_id": "deepseek-ai/DeepSeek-V3",
+      "stock_tok_per_sent": 45.0,
+      "replace_tok_per_sent": 30.12,
+      "replace_reduction_pct": 33.1,
+      "stock_tokens_per_sec": 979117,
+      "ours_tokens_per_sec": 1103854,
+      "extend_tok_per_sent": 40.89,
+      "extend_reduction_pct": 9.1
+    }
+  }
+}

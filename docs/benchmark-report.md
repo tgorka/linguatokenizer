@@ -42,6 +42,24 @@ Embeddings transplanted training-free (FVT), torch-free. Source:
 [`../results/gpt2-transplant-poc.md`](../results/gpt2-transplant-poc.md),
 [`../results/adapters-extend.md`](../results/adapters-extend.md).
 
+### 3b. Optional retrain — recover the transplant's quality (CPU, no GPU)
+
+The FVT transplant is a warm start: the merged Polish tokens are new to the
+model, so Polish bits-per-byte temporarily rises. A short fine-tune of **only
+the new token rows** (base model frozen, so English is untouched) recovers most
+of it — on CPU, no GPU:
+
+| Polish bits-per-byte | stock | transplant | retrain |
+|----------------------|------:|-----------:|--------:|
+| gpt2 | 3.62 | 4.74 | **3.86** |
+
+That recovers **78%** of the transplant penalty in 30 steps, while English
+stays within **+0.2%** (quality gate PASS) and Polish keeps its **−23.5%** token
+saving. The CPU path trains a compact delta over just the new rows (base frozen),
+so it never materialises a full-vocab gradient and fits a small (~2 GiB) box;
+more steps on a less memory-constrained host recover more. Source:
+[`../results/gpt2-retrain.md`](../results/gpt2-retrain.md).
+
 ## 4. Datacenter economics
 
 Polish workload, Llama baseline (2.68) → our BPE-64k (1.42) = **47% fewer

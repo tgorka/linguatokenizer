@@ -1,0 +1,21 @@
+{
+  "device": "cpu",
+  "steps": 30,
+  "polish_bpb": {
+    "stock_gpt2": 3.6189,
+    "transplant_only": 4.735,
+    "after_retrain": 3.8631
+  },
+  "english_bpb": {
+    "stock_gpt2": 1.0548,
+    "transplant_only": 1.0799,
+    "after_retrain": 1.0568,
+    "gate_passed": true,
+    "delta_pct": 0.19
+  },
+  "polish_tokens": {
+    "stock": 7429,
+    "extended": 5683,
+    "reduction_pct": 23.5
+  }
+}

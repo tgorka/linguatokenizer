@@ -63,17 +63,31 @@ English, avg of 5 baselines) — non-Latin scripts are hit hardest:
 |---------|----------------------------------------------------------------|
 | milder  | lt 2.11× · pl 1.98× · cs 1.95× · de 1.68× · fr 1.66× · es/zh/pt ~1.6× |
 
-Our recipe-driven pipeline, applied end to end (32k BPE, no retraining):
+Our recipe-driven pipeline, applied end to end to **14 languages** across 7
+scripts (32k BPE, no retraining) — token reduction vs baselines and the
+resulting penalty vs English:
 
-| Lang | Script | Reduction vs baselines | Penalty vs EN |
-|------|--------|-----------------------:|--------------:|
-| German | Latin | −32% | 1.67× → **1.14×** |
+| Lang | Script | Reduction | Penalty (baseline → ours) |
+|------|--------|----------:|---------------------------|
+| Hebrew | Hebrew | −68% | 2.93× → **0.96×** |
+| Ukrainian | Cyrillic | −59% | 2.77× → **1.13×** |
+| Arabic | Arabic | −59% | 2.56× → **1.05×** |
 | Russian | Cyrillic | −54% | 2.48× → **1.14×** |
+| Lithuanian | Latin | −52% | 2.11× → **1.01×** |
+| Chinese | Han | −40% | 1.59× → **0.95×** |
+| Czech / Polish | Latin | −45% | ~1.95× → **1.08–1.10×** |
+| Portuguese | Latin | −30% | 1.56× → **1.09×** |
+| German | Latin | −32% | 1.67× → **1.14×** |
+| Spanish / French | Latin | −27 / −23% | ~1.6× → **1.19 / 1.28×** |
+| Thai | Thai | −50% | 3.94× → **1.99×** |
+| Hindi | Devanagari | −30% | 4.34× → **3.05×** |
 
-Every language lands at ~1.14× English, matching Polish. Source:
-[`../results/multilang-penalty.md`](../results/multilang-penalty.md),
-[`../results/multilang-ours.md`](../results/multilang-ours.md). Add a language:
-[`add-a-language.md`](add-a-language.md).
+Most languages reach ~1.0–1.3× English (Hebrew & Chinese **below** parity),
+cutting tokens 23–68%. The densest scripts — Hindi and Thai — stay higher at
+this 32k-vocab / ~40 MB budget and want a larger vocab (48–64k) + more corpus.
+Source: [`../results/multilang-penalty.md`](../results/multilang-penalty.md)
+(baseline landscape), [`../results/multilang-ours.md`](../results/multilang-ours.md)
+(ours). Add a language: [`add-a-language.md`](add-a-language.md).
 
 ## Method notes
 

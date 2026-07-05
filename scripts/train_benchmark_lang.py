@@ -64,10 +64,13 @@ def _write_md(path: Path, data: dict) -> None:
         "-------------------------------|",
         *rows,
         "",
-        "The same recipe-driven pipeline handles Latin and Cyrillic (and any "
-        "FLORES script) - copy `languages/_template/`, stage a corpus with "
-        "`scripts/stage_corpus.py`, and run. Every language drops from its ~1.7-"
-        "2.5x baseline penalty to ~1.1x English, cutting tokens 30-55%.",
+        "The same recipe-driven pipeline handles every FLORES script (Latin, "
+        "Cyrillic, Hebrew, Arabic, Devanagari, Thai, Han) - copy "
+        "`languages/_template/`, stage a corpus with `scripts/stage_corpus.py`, "
+        "and run. Each 32k BPE cuts tokens 23-68% vs baselines; most languages "
+        "reach ~1.0-1.3x English (Hebrew/Chinese below parity). The very dense "
+        "scripts - Hindi (Devanagari) and Thai - stay higher at this vocab/data "
+        "budget and want a larger vocab (48-64k) and more corpus to close fully.",
         "",
     ]
     path.write_text("\n".join(lines), encoding="utf-8")

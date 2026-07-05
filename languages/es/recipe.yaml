@@ -1,0 +1,54 @@
+# Spanish tokenizer recipe (Latn script). Training text staged by
+# scripts/stage_corpus.py from FineWeb-2 [spa_Latn] + Wikipedia [20231101.es]; eval on the
+# ungated FLORES-200 spa_Latn/eng_Latn pair (task data:flores).
+
+language:
+  code: es
+  name: Spanish
+  scripts: [Latn]
+
+train_corpora:
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/es/train/fineweb2.txt
+    config: spa_Latn # HuggingFaceFW/fineweb-2
+    split: train
+    weight: 0.7
+    domain: web
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/es/train/wiki.txt
+    config: 20231101.es # wikimedia/wikipedia
+    split: train
+    weight: 0.3
+    domain: wiki
+
+eval_corpora:
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/flores200/flores200_dataset/devtest/spa_Latn.devtest
+    config: spa_Latn
+    split: devtest
+    weight: 1.0
+    domain: general
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/flores200/flores200_dataset/devtest/eng_Latn.devtest
+    config: eng_Latn
+    split: devtest
+    weight: 1.0
+    domain: general
+
+candidates:
+  - name: es-bpe-32k
+    algorithm: bpe
+    vocab_size: 32000
+    byte_fallback: true
+    normalization: NFC
+
+targets:
+  max_fertility_vs_english: 1.0
+  max_quality_drop_pct: 1.0
+
+baselines:
+  - gpt2
+  - meta-llama/Llama-3.1-8B
+  - mistralai/Mistral-7B-v0.1
+  - Qwen/Qwen2.5-7B
+  - deepseek-ai/DeepSeek-V3

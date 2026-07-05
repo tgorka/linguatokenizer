@@ -90,6 +90,26 @@ them (~1.5 chars/token), and disabling it lets BPE merge those sequences
 (baseline landscape), [`../results/multilang-ours.md`](../results/multilang-ours.md)
 (ours). Add a language: [`add-a-language.md`](add-a-language.md).
 
+## 7. Cross-model (old vs new tokenizer, per model)
+
+Polish tokens/sentence for each model's **stock** tokenizer vs ours applied by
+extend/replace, plus encode speed. Reduction % = cost-savings % (linear in
+tokens, both input and output legs).
+
+| Model | Stock | Extend | Replace | Ours enc tok/s |
+|-------|------:|-------:|--------:|---------------:|
+| gpt2 | 71.6 | −25% | **−58%** | 1.1M |
+| Mistral-7B | 56.3 | n/a (SP) | **−47%** | 1.1M |
+| Llama-3.1 | 50.8 | −29% | **−41%** | 1.1M |
+| Qwen2.5 | 48.2 | −9% | **−38%** | 1.1M |
+| DeepSeek-V3 | 45.0 | −9% | **−33%** | 1.1M |
+
+Our tokenizer encodes at ~1.1M tok/s — on par with or faster than the stock
+tokenizers (Llama 0.5M, Qwen 0.9M, DeepSeek 1.0M) — so the token win costs no
+tokenization throughput. Full inference wall-clock (prefill/decode) needs a
+served model on GPU; `tokenizer_core.economics` projects it. Source:
+[`../results/cross-model-benchmark.md`](../results/cross-model-benchmark.md).
+
 ## Method notes
 
 - Fertility uses a Unicode-aware word regex + NFC normalization; token counts

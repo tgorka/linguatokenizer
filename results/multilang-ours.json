@@ -18,5 +18,125 @@
     "token_reduction_vs_baseline_pct": 54.2,
     "ours_vs_english_parity_x": 1.135,
     "baseline_penalty_vs_english_x": 2.479
+  },
+  "fr": {
+    "candidate": "fr-bpe-32k",
+    "flores": "fra_Latn",
+    "vocab_size": 32000,
+    "ours_tokens_per_sentence": 35.11,
+    "baseline_tokens_per_sentence": 45.63,
+    "token_reduction_vs_baseline_pct": 23.1,
+    "ours_vs_english_parity_x": 1.279,
+    "baseline_penalty_vs_english_x": 1.663
+  },
+  "es": {
+    "candidate": "es-bpe-32k",
+    "flores": "spa_Latn",
+    "vocab_size": 32000,
+    "ours_tokens_per_sentence": 32.67,
+    "baseline_tokens_per_sentence": 44.46,
+    "token_reduction_vs_baseline_pct": 26.5,
+    "ours_vs_english_parity_x": 1.19,
+    "baseline_penalty_vs_english_x": 1.62
+  },
+  "pt": {
+    "candidate": "pt-bpe-32k",
+    "flores": "por_Latn",
+    "vocab_size": 32000,
+    "ours_tokens_per_sentence": 29.99,
+    "baseline_tokens_per_sentence": 42.92,
+    "token_reduction_vs_baseline_pct": 30.1,
+    "ours_vs_english_parity_x": 1.093,
+    "baseline_penalty_vs_english_x": 1.564
+  },
+  "cs": {
+    "candidate": "cs-bpe-32k",
+    "flores": "ces_Latn",
+    "vocab_size": 32000,
+    "ours_tokens_per_sentence": 29.63,
+    "baseline_tokens_per_sentence": 53.48,
+    "token_reduction_vs_baseline_pct": 44.6,
+    "ours_vs_english_parity_x": 1.08,
+    "baseline_penalty_vs_english_x": 1.949
+  },
+  "uk": {
+    "candidate": "uk-bpe-32k",
+    "flores": "ukr_Cyrl",
+    "vocab_size": 32000,
+    "ours_tokens_per_sentence": 30.93,
+    "baseline_tokens_per_sentence": 75.98,
+    "token_reduction_vs_baseline_pct": 59.3,
+    "ours_vs_english_parity_x": 1.127,
+    "baseline_penalty_vs_english_x": 2.768
+  },
+  "lt": {
+    "candidate": "lt-bpe-32k",
+    "flores": "lit_Latn",
+    "vocab_size": 32000,
+    "ours_tokens_per_sentence": 27.7,
+    "baseline_tokens_per_sentence": 57.9,
+    "token_reduction_vs_baseline_pct": 52.2,
+    "ours_vs_english_parity_x": 1.009,
+    "baseline_penalty_vs_english_x": 2.11
+  },
+  "hi": {
+    "candidate": "hi-bpe-32k",
+    "flores": "hin_Deva",
+    "vocab_size": 32000,
+    "ours_tokens_per_sentence": 83.74,
+    "baseline_tokens_per_sentence": 119.19,
+    "token_reduction_vs_baseline_pct": 29.7,
+    "ours_vs_english_parity_x": 3.051,
+    "baseline_penalty_vs_english_x": 4.343
+  },
+  "he": {
+    "candidate": "he-bpe-32k",
+    "flores": "heb_Hebr",
+    "vocab_size": 32000,
+    "ours_tokens_per_sentence": 26.21,
+    "baseline_tokens_per_sentence": 80.53,
+    "token_reduction_vs_baseline_pct": 67.5,
+    "ours_vs_english_parity_x": 0.955,
+    "baseline_penalty_vs_english_x": 2.934
+  },
+  "ar": {
+    "candidate": "ar-bpe-32k",
+    "flores": "arb_Arab",
+    "vocab_size": 32000,
+    "ours_tokens_per_sentence": 28.68,
+    "baseline_tokens_per_sentence": 70.27,
+    "token_reduction_vs_baseline_pct": 59.2,
+    "ours_vs_english_parity_x": 1.045,
+    "baseline_penalty_vs_english_x": 2.561
+  },
+  "th": {
+    "candidate": "th-bpe-32k",
+    "flores": "tha_Thai",
+    "vocab_size": 32000,
+    "ours_tokens_per_sentence": 54.53,
+    "baseline_tokens_per_sentence": 108.09,
+    "token_reduction_vs_baseline_pct": 49.6,
+    "ours_vs_english_parity_x": 1.987,
+    "baseline_penalty_vs_english_x": 3.938
+  },
+  "zh": {
+    "candidate": "zh-bpe-32k",
+    "flores": "zho_Hans",
+    "vocab_size": 32000,
+    "ours_tokens_per_sentence": 26.13,
+    "baseline_tokens_per_sentence": 43.74,
+    "token_reduction_vs_baseline_pct": 40.3,
+    "ours_vs_english_parity_x": 0.952,
+    "baseline_penalty_vs_english_x": 1.594
+  },
+  "pl": {
+    "candidate": "pl-bpe-32k",
+    "flores": "pol_Latn",
+    "vocab_size": 32000,
+    "ours_tokens_per_sentence": 30.12,
+    "baseline_tokens_per_sentence": 54.38,
+    "token_reduction_vs_baseline_pct": 44.6,
+    "ours_vs_english_parity_x": 1.098,
+    "baseline_penalty_vs_english_x": 1.981
   }
 }

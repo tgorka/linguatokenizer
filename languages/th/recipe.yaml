@@ -1,0 +1,54 @@
+# Thai tokenizer recipe (Thai script). Training text staged by
+# scripts/stage_corpus.py from FineWeb-2 [tha_Thai] + Wikipedia [20231101.th]; eval on the
+# ungated FLORES-200 tha_Thai/eng_Latn pair (task data:flores).
+
+language:
+  code: th
+  name: Thai
+  scripts: [Thai]
+
+train_corpora:
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/th/train/fineweb2.txt
+    config: tha_Thai # HuggingFaceFW/fineweb-2
+    split: train
+    weight: 0.7
+    domain: web
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/th/train/wiki.txt
+    config: 20231101.th # wikimedia/wikipedia
+    split: train
+    weight: 0.3
+    domain: wiki
+
+eval_corpora:
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/flores200/flores200_dataset/devtest/tha_Thai.devtest
+    config: tha_Thai
+    split: devtest
+    weight: 1.0
+    domain: general
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/flores200/flores200_dataset/devtest/eng_Latn.devtest
+    config: eng_Latn
+    split: devtest
+    weight: 1.0
+    domain: general
+
+candidates:
+  - name: th-bpe-32k
+    algorithm: bpe
+    vocab_size: 32000
+    byte_fallback: true
+    normalization: NFC
+
+targets:
+  max_fertility_vs_english: 1.0
+  max_quality_drop_pct: 1.0
+
+baselines:
+  - gpt2
+  - meta-llama/Llama-3.1-8B
+  - mistralai/Mistral-7B-v0.1
+  - Qwen/Qwen2.5-7B
+  - deepseek-ai/DeepSeek-V3

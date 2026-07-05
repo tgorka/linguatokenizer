@@ -253,3 +253,35 @@ def test_import_does_not_require_tokenizers(
     )
     module = importlib.import_module("tokenizer_core.train.trainers")
     assert hasattr(module, "train_candidate")
+
+
+def test_bpe_split_words_toggles_pretokenizer_regex(tmp_path: Path) -> None:
+    # split_words=False -> byte-dense scripts merge across the word regex,
+    # producing fewer/longer tokens on repeated multi-word phrases.
+    pytest.importorskip("tokenizers")
+    path = tmp_path / "c.txt"
+    path.write_text("\n".join(["alpha beta gamma delta"] * 300), "utf-8")
+    recipe = _recipe([_local_spec(path)])
+
+    split = _candidate("bpe")  # split_words defaults True
+    nosplit = Candidate(
+        name="xx-nosplit",
+        algorithm="bpe",
+        vocab_size=500,
+        byte_fallback=True,
+        normalization="NFC",
+        split_words=False,
+    )
+    tok_split, _ = train_candidate(
+        recipe, split, n_docs=300, seed=1, data_dir=tmp_path
+    )
+    tok_nosplit, _ = train_candidate(
+        recipe, nosplit, n_docs=300, seed=1, data_dir=tmp_path
+    )
+    probe = "alpha beta gamma delta"
+    # no-split can form cross-word tokens, so it needs <= the split count.
+    assert len(tok_nosplit.encode(probe).ids) <= len(
+        tok_split.encode(probe).ids
+    )
+    # and at least one no-split vocab token spans a space (Ġ marker).
+    assert any("Ġ" in t[1:] and len(t) > 3 for t in tok_nosplit.get_vocab())

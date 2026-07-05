@@ -79,13 +79,14 @@ resulting penalty vs English:
 | Portuguese | Latin | −30% | 1.56× → **1.09×** |
 | German | Latin | −32% | 1.67× → **1.14×** |
 | Spanish / French | Latin | −27 / −23% | ~1.6× → **1.19 / 1.28×** |
-| Thai | Thai | −50% | 3.94× → **1.99×** |
-| Hindi | Devanagari | −30% | 4.34× → **3.05×** |
+| Thai | Thai | −77% | 3.94× → **0.91×** |
+| Hindi | Devanagari | −76% | 4.34× → **1.04×** |
 
-Most languages reach ~1.0–1.3× English (Hebrew & Chinese **below** parity),
-cutting tokens 23–68%. The densest scripts — Hindi and Thai — stay higher at
-this 32k-vocab / ~40 MB budget and want a larger vocab (48–64k) + more corpus.
-Source: [`../results/multilang-penalty.md`](../results/multilang-penalty.md)
+Most languages reach ~1.0–1.3× English (Hebrew, Chinese & Thai **below**
+parity), cutting tokens 23–77%. The byte-dense scripts (Devanagari, Thai) need
+`split_words: false` in the recipe: the GPT-2 word-split regex over-fragments
+them (~1.5 chars/token), and disabling it lets BPE merge those sequences
+(~4 chars/token) — Hindi 3.05×→**1.04×**, Thai 1.99×→**0.91×**. Source: [`../results/multilang-penalty.md`](../results/multilang-penalty.md)
 (baseline landscape), [`../results/multilang-ours.md`](../results/multilang-ours.md)
 (ours). Add a language: [`add-a-language.md`](add-a-language.md).
 

@@ -1,0 +1,59 @@
+# Russian tokenizer recipe. Generalization of the Polish recipe to Russian
+# (Cyrl script). Training text staged by scripts/stage_corpus.py; eval on the
+# ungated FLORES-200 rus_Cyrl/eng_Latn pair (task data:flores).
+
+language:
+  code: ru
+  name: Russian
+  scripts: [Cyrl]
+
+train_corpora:
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/ru/train/fineweb2.txt
+    config: rus_Cyrl # HuggingFaceFW/fineweb-2
+    split: train
+    weight: 0.7
+    domain: web
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/ru/train/wiki.txt
+    config: 20231101.ru # wikimedia/wikipedia
+    split: train
+    weight: 0.3
+    domain: wiki
+
+eval_corpora:
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/flores200/flores200_dataset/devtest/rus_Cyrl.devtest
+    config: rus_Cyrl
+    split: devtest
+    weight: 1.0
+    domain: general
+  - source: local
+    id: ${TOKENIZER_DATA_DIR}/flores200/flores200_dataset/devtest/eng_Latn.devtest
+    config: eng_Latn
+    split: devtest
+    weight: 1.0
+    domain: general
+
+candidates:
+  - name: ru-bpe-32k
+    algorithm: bpe
+    vocab_size: 32000
+    byte_fallback: true
+    normalization: NFC
+  - name: ru-bpe-64k
+    algorithm: bpe
+    vocab_size: 64000
+    byte_fallback: true
+    normalization: NFC
+
+targets:
+  max_fertility_vs_english: 1.0
+  max_quality_drop_pct: 1.0
+
+baselines:
+  - gpt2
+  - meta-llama/Llama-3.1-8B
+  - mistralai/Mistral-7B-v0.1
+  - Qwen/Qwen2.5-7B
+  - deepseek-ai/DeepSeek-V3

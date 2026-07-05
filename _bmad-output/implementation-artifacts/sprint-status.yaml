@@ -41,8 +41,8 @@ development_status:
   4-2-gpt2-transplant-proof-of-concept: done
   epic-4-retrospective: optional
 
-  epic-5: in-progress
-  5-1-add-a-language-pipeline-hardening: backlog
+  epic-5: done
+  5-1-add-a-language-pipeline-hardening: done
   5-2-release-readiness: done
   epic-5-retrospective: optional
 

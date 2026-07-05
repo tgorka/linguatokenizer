@@ -67,10 +67,12 @@ def _write_md(path: Path, data: dict) -> None:
         "The same recipe-driven pipeline handles every FLORES script (Latin, "
         "Cyrillic, Hebrew, Arabic, Devanagari, Thai, Han) - copy "
         "`languages/_template/`, stage a corpus with `scripts/stage_corpus.py`, "
-        "and run. Each 32k BPE cuts tokens 23-68% vs baselines; most languages "
-        "reach ~1.0-1.3x English (Hebrew/Chinese below parity). The very dense "
-        "scripts - Hindi (Devanagari) and Thai - stay higher at this vocab/data "
-        "budget and want a larger vocab (48-64k) and more corpus to close fully.",
+        "and run. Each 32k BPE cuts tokens 23-77% vs baselines and reaches "
+        "~1.0-1.3x English; Hebrew, Chinese and Thai land below parity. Byte-"
+        "dense scripts (Devanagari, Thai) need `split_words: false` in the "
+        "recipe - the GPT-2 word-split regex over-fragments them, and disabling "
+        "it lifts chars/token ~1.5 -> ~4 (Hindi 3.05x -> 1.04x, Thai 1.99x -> "
+        "0.91x).",
         "",
     ]
     path.write_text("\n".join(lines), encoding="utf-8")

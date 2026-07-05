@@ -41,6 +41,7 @@ candidates:
     vocab_size: 32000
     byte_fallback: true
     normalization: NFC
+    split_words: false # Devanagari/Thai: no GPT-2 word-split regex
 
 targets:
   max_fertility_vs_english: 1.0

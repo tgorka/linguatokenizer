@@ -80,7 +80,11 @@ def _train_bpe(candidate: Candidate, documents: list[str]) -> Tokenizer:
 
     tokenizer = Tokenizer(models.BPE(unk_token=None))
     tokenizer.normalizer = _build_normalizer(candidate.normalization)
-    tokenizer.pre_tokenizer = pre_tokenizers.ByteLevel(add_prefix_space=False)
+    # use_regex=False for byte-dense scripts (Devanagari/Thai/...) whose
+    # codepoints the GPT-2 word-split regex over-fragments; see Candidate.
+    tokenizer.pre_tokenizer = pre_tokenizers.ByteLevel(
+        add_prefix_space=False, use_regex=candidate.split_words
+    )
     tokenizer.decoder = decoders.ByteLevel()
 
     trainer = trainers.BpeTrainer(

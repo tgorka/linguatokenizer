@@ -81,6 +81,14 @@ class Candidate(BaseModel):
         vocab_size: Target vocabulary size (positive).
         byte_fallback: Whether to enable byte fallback for OOV coverage.
         normalization: Unicode normalization form applied before training.
+        split_words: Whether the byte-level pretokenizer applies the GPT-2
+            regex that splits on whitespace/word boundaries (``bpe`` only).
+            ``True`` (default) suits space-delimited scripts. Set ``False`` for
+            byte-dense scripts whose codepoints the English-centric regex
+            over-fragments — abugidas/abjads and scripts without word spaces
+            (Devanagari, Thai): disabling it lets BPE merge those sequences,
+            roughly tripling chars/token (Hindi 1.5 -> ~4.0). Ignored by
+            unigram/superbpe.
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -90,6 +98,7 @@ class Candidate(BaseModel):
     vocab_size: int = Field(gt=0)
     byte_fallback: bool = True
     normalization: NormalizationForm = "NFC"
+    split_words: bool = True
 
 
 class Targets(BaseModel):

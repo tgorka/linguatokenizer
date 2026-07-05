@@ -83,10 +83,10 @@
     "candidate": "hi-bpe-32k",
     "flores": "hin_Deva",
     "vocab_size": 32000,
-    "ours_tokens_per_sentence": 83.74,
+    "ours_tokens_per_sentence": 28.5,
     "baseline_tokens_per_sentence": 119.19,
-    "token_reduction_vs_baseline_pct": 29.7,
-    "ours_vs_english_parity_x": 3.051,
+    "token_reduction_vs_baseline_pct": 76.1,
+    "ours_vs_english_parity_x": 1.038,
     "baseline_penalty_vs_english_x": 4.343
   },
   "he": {
@@ -113,10 +113,10 @@
     "candidate": "th-bpe-32k",
     "flores": "tha_Thai",
     "vocab_size": 32000,
-    "ours_tokens_per_sentence": 54.53,
+    "ours_tokens_per_sentence": 24.93,
     "baseline_tokens_per_sentence": 108.09,
-    "token_reduction_vs_baseline_pct": 49.6,
-    "ours_vs_english_parity_x": 1.987,
+    "token_reduction_vs_baseline_pct": 76.9,
+    "ours_vs_english_parity_x": 0.908,
     "baseline_penalty_vs_english_x": 3.938
   },
   "zh": {

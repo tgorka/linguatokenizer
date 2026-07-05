@@ -1,0 +1,13 @@
+{
+  "eval": "1012 FLORES-pl prose + 500 code docs",
+  "router_accuracy": 0.8823,
+  "total_tokens": {
+    "general_only": 342435,
+    "technical_only": 279562,
+    "mixed_only": 242099,
+    "routed": 269605
+  },
+  "routed_vs_mixed_pct": -11.4,
+  "routed_vs_best_single_pct": -11.4,
+  "decision": "DROP"
+}

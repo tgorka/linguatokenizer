@@ -29,6 +29,17 @@ adapters = [
     "transformers>=4.44",
     "tokenizers>=0.20",
 ]
+# gpt2 retrain PoC — actually run the model: needs torch + accelerate on top of
+# the adapters/corpora/train stack. Runs on CPU or GPU. Heavy; synced on demand.
+poc = [
+    "torch>=2.2",
+    "accelerate>=0.30",
+    "transformers>=4.44",
+    "datasets>=3",
+    "tokenizers>=0.20",
+    "numpy>=1.26",
+    "safetensors>=0.4",
+]
 
 [project.scripts]
 tokenizer = "tokenizer_core.cli:main"

@@ -35,6 +35,10 @@ for other languages.
 The **North Star metric** is *fertility* (tokens/word) on held-out, sentence-
 aligned text — see `tokenizer_core.benchmark.fertility`.
 
+Training/eval corpora and their licenses are documented in
+[`docs/data-provenance.md`](docs/data-provenance.md); release history is in
+[`CHANGELOG.md`](CHANGELOG.md).
+
 ## Results so far (Polish, measured on FLORES-200)
 
 Fertility = tokens per word on 1012 sentence-aligned PL/EN pairs. Lower is

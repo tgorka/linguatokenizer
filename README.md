@@ -1,4 +1,4 @@
-# tokenizer
+# lingua tokenizer
 
 Token-efficient, morphology-aware tokenizers for under-served languages —
 **Polish first** — plus adapters that graft them onto existing LLM tokenizers.
